@@ -1,0 +1,17 @@
+node_modules/
+.expo/
+dist/
+.env
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+*.apk
+web-build/
+android/
+ios/
+package-lock.json
+
+expo-env.d.ts

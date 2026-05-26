@@ -1,0 +1,133 @@
+{
+  "generic": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "leave": "Verlassen",
+    "close": "Schließen"
+  },
+  "home": {
+    "title": "MotoVoice",
+    "subtitle": "Erstelle oder trete einem Voice-Channel bei",
+    "namePlaceholder": "z.B. Markus",
+    "createChannel": "Channel erstellen",
+    "joinChannel": "Channel beitreten",
+    "yourName": "Anzeigename",
+    "scanQrCode": "QR-Code Scannen",
+    "enterName": "Trage bitte einen Namen ein bevor du los legst.",
+    "editName": "Ändern",
+    "or": "oder",
+    "recentChannel": "Zuletzt besucht",
+    "recentHost": "Du warst Host",
+    "recentGuest": "Du warst Gast",
+    "rejoin": "Wieder beitreten",
+    "recentGone": "Channel nicht mehr verfügbar",
+    "agoJustNow": "gerade eben",
+    "agoMinutes": "vor {{n}} Min.",
+    "agoHours": "vor {{n}} Std.",
+    "agoDays": "vor {{n}} Tag(en)"
+  },
+  "channel": {
+    "leave": "Channel verlassen",
+    "leaveTitle": "Channel verlassen",
+    "leaveConfirmHost": "Möchtest du den Channel nur verlassen oder ihn für alle Teilnehmer beenden?",
+    "leaveOnly": "Nur verlassen",
+    "leaveConfirmGuest": "Möchtest du den Channel verlassen?",
+    "leaveEnd": "Channel beenden",
+    "participants": "Teilnehmer",
+    "openMic": "Offenes Mikro",
+    "openMicOn": "Dauerhaft senden",
+    "openMicOff": "Drücken = senden",
+    "micActive": "Mikrofon aktiv",
+    "reconnecting": "Verbindung wird wiederhergestellt...",
+    "noNetwork": "Keine Netzwerkverbindung",
+    "connectionError": "Verbindungsfehler",
+    "closedTitle": "Channel beendet",
+    "closedMessage": "Der Host hat den Channel geschlossen.",
+    "permissionDeniedTitle": "Berechtigung fehlt",
+    "permissionDeniedMessage": "Benachrichtigungs und Mikrofon-Zugriff ist erforderlich. Bitte erlaube es in den App-Einstellungen und versuche es erneut."
+  },
+  "scan": {
+    "invalidQrCode": "QR-Code ungültig",
+    "channelNotFound": "Channel nicht gefunden oder abgelaufen",
+    "cameraPermissionRequesting": "Kamera-Berechtigung wird angefragt...",
+    "cameraPermissionMissing": "Kamera-Berechtigung fehlt. Bitte in den App-Einstellungen aktivieren.",
+    "joining": "Trete bei...",
+    "scanHint": "Halte die Kamera auf den QR-Code des Channel-Erstellers"
+  },
+  "create": {
+    "channelCreateError": "Channel konnte nicht erstellt werden",
+    "sharingJoinChannel": "Tritt meinem MotoVoice Channel bei!",
+    "sharingJoinChannelTitle": "MotoVoice Channel beitreten",
+    "createChannel": "Channel erstellen",
+    "creatingChannel": "Erstelle Channel...",
+    "createChannelRetry": "Erneut versuchen",
+    "shareQrCode": "Lass andere diesen QR-Code scannen um beizutreten",
+    "shareLink": "Link teilen",
+    "joinChannel": "Channel beitreten",
+    "validity": "Gültig für"
+  },
+  "connectionBadge": {
+    "stateDisconnected": "Getrennt",
+    "stateConnecting": "Verbinde...",
+    "stateConnected": "Verbunden",
+    "stateReconnecting": "Verbinde neu...",
+    "title": "Verbindungsinfo",
+    "sectionQuality": "Qualität",
+    "sectionDetails": "Details",
+    "labelLatency": "Latenz (RTT)",
+    "hintLatency": "gut ≤80 ms · mittel ≤200 ms",
+    "labelPacketLoss": "Paketverlust",
+    "hintPacketLoss": "gut ≤1 % · mittel ≤5 %",
+    "labelJitter": "Jitter",
+    "hintJitter": "gut ≤20 ms · mittel ≤50 ms",
+    "labelBandwidth": "Bandbreite",
+    "labelProtocol": "Protokoll",
+    "labelStatus": "Status",
+    "labelUpdated": "Aktualisiert",
+    "noStats": "Stats werden nach Verbindungsaufbau angezeigt."
+  },
+  "ptt": {
+    "speaking": "Spreche...",
+    "holdToTalk": "Gedrückt halten",
+    "tapToTalk": "Tippen zum Sprechen"
+  },
+  "setup": {
+    "title": "Server einrichten",
+    "subtitle": "Gib die URL deines MotoVoice-Servers ein, um die App zu nutzen.",
+    "urlLabel": "Server-URL",
+    "placeholder": "deine-domain.de",
+    "save": "Speichern",
+    "errorUnreachable": "Server nicht erreichbar. Bitte URL prüfen.",
+    "serverGuide": "Anleitung: Eigenen Server einrichten →"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "sectionLanguage": "Sprache",
+    "sectionAudio": "Audio",
+    "echoCancellation": "Echo-Unterdrückung",
+    "noiseSuppression": "Rauschunterdrückung",
+    "gainControl": "Lautstärke-Automatik",
+    "dataSaverMode": "Datensparmodus",
+    "dataSaverModeHint": "Reduziert die Bitrate wodurch die Sprachqualität sinkt",
+    "sectionServer": "Server",
+    "serverUrl": "Server-URL",
+    "serverUrlPlaceholder": "deine-domain.de",
+    "serverUrlReset": "Standard wiederherstellen",
+    "sectionAbout": "Über die App",
+    "openSourceLicenses": "Open-Source-Lizenzen",
+    "version": "Version {{version}}"
+  },
+  "licenses": {
+    "title": "Open-Source-Lizenzen",
+    "subtitle": "Diese App verwendet folgende Open-Source-Bibliotheken."
+  },
+  "participant": {
+    "you": "Du",
+    "disconnected": "Verbindung weg"
+  },
+  "notification": {
+    "title": "MotoVoice — Aktiver Channel",
+    "body": "Tippen zum Öffnen",
+    "reconnecting": "Verbindung unterbrochen — Wiederverbinden..."
+  }
+}

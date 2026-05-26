@@ -1,0 +1,133 @@
+{
+  "generic": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "leave": "Leave",
+    "close": "Close"
+  },
+  "home": {
+    "title": "MotoVoice",
+    "subtitle": "Create or join a voice channel",
+    "namePlaceholder": "e.g. Marcus",
+    "createChannel": "Create channel",
+    "joinChannel": "Join channel",
+    "yourName": "Display name",
+    "scanQrCode": "Scan QR code",
+    "enterName": "Please enter a name before you get started.",
+    "editName": "Edit",
+    "or": "or",
+    "recentChannel": "Recent",
+    "recentHost": "You were host",
+    "recentGuest": "You were guest",
+    "rejoin": "Rejoin",
+    "recentGone": "Channel no longer available",
+    "agoJustNow": "just now",
+    "agoMinutes": "{{n}} min ago",
+    "agoHours": "{{n}} h ago",
+    "agoDays": "{{n}} day(s) ago"
+  },
+  "channel": {
+    "leave": "Leave channel",
+    "leaveTitle": "Leave channel",
+    "leaveConfirmHost": "Do you want to leave the channel or end it for all participants?",
+    "leaveOnly": "Just leave",
+    "leaveConfirmGuest": "Do you want to leave the channel?",
+    "leaveEnd": "End channel",
+    "participants": "Participants",
+    "openMic": "Open Mic",
+    "openMicOn": "Always transmitting",
+    "openMicOff": "Press to talk",
+    "micActive": "Microphone active",
+    "reconnecting": "Reconnecting...",
+    "noNetwork": "No network connection",
+    "connectionError": "Connection error",
+    "closedTitle": "Channel ended",
+    "closedMessage": "The host has closed the channel.",
+    "permissionDeniedTitle": "Permission required",
+    "permissionDeniedMessage": "Notification and microphone access is required. Please allow it in the app settings and try again."
+  },
+  "scan": {
+    "invalidQrCode": "Invalid QR code",
+    "channelNotFound": "Channel not found or expired",
+    "cameraPermissionRequesting": "Requesting camera permission...",
+    "cameraPermissionMissing": "Camera permission missing. Please enable it in the app settings.",
+    "joining": "Joining...",
+    "scanHint": "Point the camera at the channel creator's QR code"
+  },
+  "create": {
+    "channelCreateError": "Could not create channel",
+    "sharingJoinChannel": "Join my MotoVoice channel!",
+    "sharingJoinChannelTitle": "Join MotoVoice channel",
+    "createChannel": "Create channel",
+    "creatingChannel": "Creating channel...",
+    "createChannelRetry": "Try again",
+    "shareQrCode": "Let others scan this QR code to join",
+    "shareLink": "Share link",
+    "joinChannel": "Join channel",
+    "validity": "Valid for"
+  },
+  "connectionBadge": {
+    "stateDisconnected": "Disconnected",
+    "stateConnecting": "Connecting...",
+    "stateConnected": "Connected",
+    "stateReconnecting": "Reconnecting...",
+    "title": "Connection Info",
+    "sectionQuality": "Quality",
+    "sectionDetails": "Details",
+    "labelLatency": "Latency (RTT)",
+    "hintLatency": "good ≤80 ms · medium ≤200 ms",
+    "labelPacketLoss": "Packet Loss",
+    "hintPacketLoss": "good ≤1 % · medium ≤5 %",
+    "labelJitter": "Jitter",
+    "hintJitter": "good ≤20 ms · medium ≤50 ms",
+    "labelBandwidth": "Bandwidth",
+    "labelProtocol": "Protocol",
+    "labelStatus": "Status",
+    "labelUpdated": "Updated",
+    "noStats": "Stats will be shown once connected."
+  },
+  "ptt": {
+    "speaking": "Speaking...",
+    "holdToTalk": "Hold to talk",
+    "tapToTalk": "Tap to talk"
+  },
+  "setup": {
+    "title": "Set up server",
+    "subtitle": "Enter your MotoVoice server URL to use the app.",
+    "urlLabel": "Server URL",
+    "placeholder": "your-domain.com",
+    "save": "Save",
+    "errorUnreachable": "Server not reachable. Please check the URL.",
+    "serverGuide": "Guide: Set up your own server →"
+  },
+  "settings": {
+    "title": "Settings",
+    "sectionLanguage": "Language",
+    "sectionAudio": "Audio",
+    "echoCancellation": "Echo Cancellation",
+    "noiseSuppression": "Noise Suppression",
+    "gainControl": "Auto Gain Control",
+    "dataSaverMode": "Data Saver Mode",
+    "dataSaverModeHint": "Reduces the bitrate with worse audio quality as tradeoff",
+    "sectionServer": "Server",
+    "serverUrl": "Server URL",
+    "serverUrlPlaceholder": "your-domain.com",
+    "serverUrlReset": "Restore default",
+    "sectionAbout": "About",
+    "openSourceLicenses": "Open Source Licenses",
+    "version": "Version {{version}}"
+  },
+  "licenses": {
+    "title": "Open Source Licenses",
+    "subtitle": "This app uses the following open-source libraries."
+  },
+  "participant": {
+    "you": "You",
+    "disconnected": "Connection lost"
+  },
+  "notification": {
+    "title": "MotoVoice — Active Channel",
+    "body": "Tap to open",
+    "reconnecting": "Connection interrupted — Reconnecting..."
+  }
+}

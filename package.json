@@ -1,0 +1,52 @@
+{
+  "name": "motovoice",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --android --clear",
+    "clean": "expo prebuild --clean",
+    "android": "expo run:android",
+    "adb:install": "adb install build-*.apk",
+    "ios": "expo run:ios --device",
+    "build:android": "eas build --platform android --profile development --local",
+    "build:ios": "expo prebuild && eas build --platform ios --profile development --local",
+    "build:android_prod": "expo prebuild && eas build --platform android --profile production-arm64 --local",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@livekit/react-native": "^2.10.1",
+    "@livekit/react-native-webrtc": "^144.0.0",
+    "expo": "~55.0.0",
+    "expo-adi-registration": "^1.0.0",
+    "expo-asset": "~55.0.16",
+    "expo-audio": "~55.0.14",
+    "expo-build-properties": "~55.0.13",
+    "expo-camera": "~55.0.0",
+    "expo-constants": "~55.0.16",
+    "expo-dev-client": "~55.0.27",
+    "expo-haptics": "~55.0.0",
+    "expo-keep-awake":"^55.0.0",
+    "expo-linking": "~55.0.15",
+    "expo-router": "~55.0.12",
+    "expo-secure-store": "~55.0.0",
+    "expo-status-bar": "~55.0.0",
+    "expo-system-ui": "~55.0.0",
+    "i18next": "^26.0.5",
+    "livekit-client": "^2.18.0",
+    "react": "19.2.0",
+    "react-i18next": "^17.0.3",
+    "react-native": "0.83.6",
+    "react-native-notify-kit": "~10.2.1",
+    "react-native-qrcode-svg": "^6.3.2",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "react-native-svg": "15.15.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@types/react": "~19.2.0",
+    "babel-plugin-module-resolver": "~5.0.3",
+    "babel-preset-expo": "^55.0.0",
+    "typescript": "^5.7.0"
+  }
+}
