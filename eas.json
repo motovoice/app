@@ -22,7 +22,12 @@
         "buildType": "app-bundle"
       }
     },
-    "production-arm64": {
+    "production-ios": {
+      "ios": {
+        "buildConfiguration": "Release"
+      }
+    },
+    "production-arm64-v8a": {
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"

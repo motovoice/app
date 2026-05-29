@@ -1,0 +1,150 @@
+name: Release Build
+
+# Triggered when a tag matching X.Y.Z is pushed, e.g.: git tag 1.0.0 && git push origin 1.0.0
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  build-android:
+    name: 🤖 Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Build Android APK (local)
+        # Uses the "production-arm64" profile from eas.json → produces an armv8 APK.
+        # The signing credentials (keystore) are fetched from your EAS account via EXPO_TOKEN.
+        # One-time local setup: eas credentials --platform android
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          ADI_TOKEN: ${{ secrets.ADI_TOKEN }}
+        run: eas build --platform android --profile production-arm64-v8a --local --non-interactive
+
+      - name: Rename APK
+        run: |
+          APK=$(find . -maxdepth 2 -name "*.apk" ! -path "*/node_modules/*" | head -1)
+          if [ -z "$APK" ]; then
+            echo "::error::No APK file found!"
+            exit 1
+          fi
+          mv "$APK" "motovoice-${{ github.ref_name }}-arm64-v8a.apk"
+          echo "APK: motovoice-${{ github.ref_name }}-arm64-v8a.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: '*.apk'
+          if-no-files-found: error
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # iOS Build (macos-latest, local EAS build)
+  # Requirements:
+  #   - Apple Developer account
+  #   - iOS distribution certificate + provisioning profile stored in EAS
+  #     (one-time local setup: eas credentials --platform ios)
+  # ──────────────────────────────────────────────────────────────────────────────
+  build-ios:
+    name: 🍎 iOS IPA
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Build iOS IPA (local)
+        # Uses the "production-ios" profile from eas.json → produces an IPA.
+        # The signing credentials (distribution certificate + provisioning profile)
+        # are fetched from your EAS account via EXPO_TOKEN.
+        # One-time local setup: eas credentials --platform ios
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          ADI_TOKEN: ${{ secrets.ADI_TOKEN }}
+        run: eas build --platform ios --profile production-ios --local --non-interactive
+
+      - name: Rename IPA
+        run: |
+          IPA=$(find . -maxdepth 2 -name "*.ipa" ! -path "*/node_modules/*" | head -1)
+          if [ -z "$IPA" ]; then
+            echo "::error::No IPA file found!"
+            exit 1
+          fi
+          mv "$IPA" "motovoice-${{ github.ref_name }}.ipa"
+          echo "IPA: motovoice-${{ github.ref_name }}.ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: '*.ipa'
+          if-no-files-found: error
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Create GitHub Release and attach artifacts
+  # ──────────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: 🚀 GitHub Release
+    #needs: [build-android, build-ios]
+    needs: [build-android]
+    runs-on: ubuntu-latest
+    # For an Android-only release (without iOS), change the line above to:
+    # needs: [build-android]
+    permissions:
+      contents: write
+    steps:
+      - name: Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+
+      - name: Download iOS IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: MotoVoice ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            *.apk
+            *.ipa
