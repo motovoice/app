@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start --android --clear",
+    "start": "expo start --clear",
     "clean": "expo prebuild --clean",
-    "android": "expo run:android",
     "adb:install": "adb install build-*.apk",
-    "ios": "expo run:ios --device",
+    "build:ios": "eas build --platform ios --profile development --local",
+    "build:ios_prod": "eas build --platform ios --profile production --local",
     "build:android": "eas build --platform android --profile development --local",
-    "build:ios": "expo prebuild && eas build --platform ios --profile development --local",
     "build:android_prod": "expo prebuild && eas build --platform android --profile production-arm64-v8a --local",
     "build:android_prod_play_store": "expo prebuild && eas build --platform android --profile production --local",
     "lint": "eslint src --ext .ts,.tsx"
