@@ -7,9 +7,10 @@ const SERVER_URL_KEY      = 'motovoice_server_url';
 const LAST_CHANNEL_KEY    = 'motovoice_last_channel';
 
 export interface LastChannel {
-  roomId:   string;
-  isHost:   boolean;
-  joinedAt: string; // ISO date string
+  roomId:      string;
+  isHost:      boolean;
+  joinedAt:    string; // ISO date string
+  deleteSecret?: string;
 }
 
 export interface AudioSettings {

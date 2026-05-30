@@ -22,13 +22,14 @@ export default function ChannelScreen() {
   const { t, i18n } = useTranslation();
   useKeepAwake();
 
-  const { roomId, livekitToken, livekitUrl, isHost, qrPayload, hostIdentity } = useLocalSearchParams<{
+  const { roomId, livekitToken, livekitUrl, isHost, qrPayload, hostIdentity, deleteSecret } = useLocalSearchParams<{
     roomId:       string;
     livekitToken: string;
     livekitUrl:   string;
     isHost:       string;
     qrPayload:    string;
     hostIdentity: string;
+    deleteSecret:  string;
   }>();
 
   const [showQR, setShowQR]                         = useState(false);
@@ -49,8 +50,9 @@ export default function ChannelScreen() {
     if (roomId) {
       storage.setLastChannel({
         roomId,
-        isHost: isHost === '1',
-        joinedAt: new Date().toISOString(),
+        isHost:      isHost === '1',
+        joinedAt:    new Date().toISOString(),
+        deleteSecret: deleteSecret || undefined,
       });
     }
   }, []);
@@ -120,7 +122,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: async () => {
               disconnect();
-              try { await api.deleteRoom(roomId); } catch {}
+              try { await api.deleteRoom(roomId, deleteSecret ?? ''); } catch {}
               router.replace('/');
             },
           },
