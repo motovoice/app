@@ -70,8 +70,8 @@ export function useForegroundService(roomId: string, connectionState: Connection
   // Start foreground service once on mount, stop on unmount
   useEffect(() => {
     const start = async () => {
+      const notify_permission = await notifee.requestPermission();
       if (Platform.OS === 'android') {
-        const notify_permission = await notifee.requestPermission();
         const results = await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
           PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
