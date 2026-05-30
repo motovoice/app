@@ -105,17 +105,19 @@ export default function HomeScreen() {
     setRejoinError(false);
     try {
       const status = await api.getRoomStatus(lastChannel.roomId);
-      if (!status.is_active) throw new Error('inactive');
+      if (!status?.is_active) throw new Error('inactive');
       const name = await storage.getDisplayName();
       const result = await api.joinRoom(lastChannel.roomId, name ?? 'Gast');
+      if (!result) throw new Error('no result');
       router.push({
         pathname: '/channel',
         params: {
           roomId:       result.roomId,
           livekitToken: result.livekitToken,
           livekitUrl:   result.livekitUrl,
-          isHost:       '0',
+          isHost:       lastChannel.isHost ? '1' : '0',
           hostIdentity: result.hostIdentity ?? '',
+          deleteSecret: lastChannel.deleteSecret ?? '',
         },
       });
     } catch {

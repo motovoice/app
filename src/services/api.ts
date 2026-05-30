@@ -10,7 +10,8 @@ export interface CreateRoomResponse {
   livekitUrl:    string;
   expiresAt:     string;
   qrPayload:     string;
-  hostIdentity?: string; // from backend if available
+  deleteSecret:  string;
+  hostIdentity?: string;
 }
 
 export interface JoinRoomResponse {
@@ -32,10 +33,12 @@ async function request<T>(
   path: string,
   options?: RequestInit
 ): Promise<T | null> {
-  const res = await fetch(`${_apiBase}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+  const headers: Record<string, string> = {};
+  if (options?.body) headers['Content-Type'] = 'application/json';
+  if (options?.headers) Object.assign(headers, options.headers);
+
+  const { headers: _h, ...rest } = (options ?? {}) as any;
+  const res = await fetch(`${_apiBase}${path}`, { ...rest, headers });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -76,6 +79,9 @@ export const api = {
     request<RoomStatus>(`/api/rooms/${roomId}`),
 
   /** Manually close the room (host only) */
-  deleteRoom: (roomId: string) =>
-    request<void>(`/api/rooms/${roomId}`, { method: 'DELETE' }),
+  deleteRoom: (roomId: string, deleteSecret: string) =>
+    request<void>(`/api/rooms/${roomId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${deleteSecret}` },
+    }),
 };
