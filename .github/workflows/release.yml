@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
 
 env:
   NODE_VERSION: '22'
@@ -30,6 +31,9 @@ jobs:
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Set version from tag
+        run: npm version ${{ github.ref_name }} --no-git-tag-version
 
       - name: Install EAS CLI
         run: npm install -g eas-cli
@@ -68,6 +72,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────────────
   build-android-aab:
     name: 🤖 Android AAB
+    if: ${{ !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -86,6 +91,9 @@ jobs:
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Set version from tag
+        run: npm version ${{ github.ref_name }} --no-git-tag-version
 
       - name: Install EAS CLI
         run: npm install -g eas-cli
@@ -142,6 +150,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Set version from tag
+        run: npm version ${{ github.ref_name }} --no-git-tag-version
+
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
@@ -179,6 +190,7 @@ jobs:
   create-release:
     name: 🚀 GitHub Release
     needs: [build-android, build-android-aab, build-ios]
+    if: ${{ always() && !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -193,5 +205,6 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           files: '*.apk'
