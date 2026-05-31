@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "MotoVoice",
     slug: "motovoice",
-    version: "1.0.0",
+    version: process.env.APP_VERSION || "0.0.0",
     orientation: "portrait",
     icon: "./assets/android_icon.png",
     scheme: "motovoice",

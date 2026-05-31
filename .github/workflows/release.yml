@@ -41,6 +41,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           ADI_TOKEN: ${{ secrets.ADI_TOKEN }}
+          APP_VERSION: ${{ github.ref_name }}
         run: eas build --platform android --profile production-arm64-v8a --local --non-interactive
 
       - name: Rename APK
@@ -93,6 +94,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           ADI_TOKEN: ${{ secrets.ADI_TOKEN }}
+          APP_VERSION: ${{ github.ref_name }}
         run: eas build --platform android --profile production --local --non-interactive
 
       - name: Rename AAB
@@ -150,6 +152,7 @@ jobs:
         # One-time local setup: eas credentials --platform ios
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          APP_VERSION: ${{ github.ref_name }}
         run: eas build --platform ios --profile production --local --non-interactive
 
       - name: Rename IPA
