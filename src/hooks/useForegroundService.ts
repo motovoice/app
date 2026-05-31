@@ -83,9 +83,13 @@ export function useForegroundService(roomId: string, connectionState: Connection
         }
       }
       startedRef.current = true;
-      // Use refs to get the latest state — permission dialogs take time and
-      // connectionState in the closure may be stale by the time we get here.
-      await showNotification(buildBody(connectionStateRef.current, roomIdRef.current), true);
+      // For the initial notification, treat Disconnected as Connecting —
+      // Disconnected here means "not yet connected", not "lost connection".
+      // The second effect will update once LiveKit actually transitions.
+      const initialState = connectionStateRef.current === ConnectionState.Disconnected
+        ? ConnectionState.Connecting
+        : connectionStateRef.current;
+      await showNotification(buildBody(initialState, roomIdRef.current), true);
     };
 
     start().catch((e) => {

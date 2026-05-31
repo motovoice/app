@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal,
-  ScrollView, Pressable,
+  ScrollView, Pressable, useWindowDimensions,
 } from 'react-native';
 import { ConnectionState } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ function StatRow({ label, value, unit = '', color, hint }: StatRowProps) {
 
 export function ConnectionBadge({ state, stats }: ConnectionBadgeProps) {
   const { t, i18n } = useTranslation();
+  const { height } = useWindowDimensions();
   const [visible, setVisible] = useState(false);
 
   const STATE_LABEL: Record<ConnectionState, string> = {
@@ -89,17 +90,16 @@ export function ConnectionBadge({ state, stats }: ConnectionBadgeProps) {
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <Pressable
-          style={s.overlay}
-          onPress={() => setVisible(false)}
-        >
-          {/* Inner view: prevent tap propagation */}
-          <Pressable style={s.sheet} onPress={() => {}}>
+        {/* Dim backdrop — tap to close, absolutely positioned so it doesn't wrap the sheet */}
+        <Pressable style={s.overlay} onPress={() => setVisible(false)} />
+
+        {/* Sheet — no Pressable parent so ScrollView receives gestures freely */}
+        <View style={s.sheet}>
 
             <View style={s.handle} />
             <Text style={s.title}>{t('connectionBadge.title')}</Text>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: height * 0.55 }}>
 
               {/* Connection quality */}
               <Text style={s.sectionHeader}>{t('connectionBadge.sectionQuality')}</Text>
@@ -131,6 +131,13 @@ export function ConnectionBadge({ state, stats }: ConnectionBadgeProps) {
                 <StatRow
                   label={t('connectionBadge.labelBandwidth')}
                   value={stats?.bitrateKbps ?? null}
+                  unit="kbps"
+                  color={Colors.textSecondary}
+                />
+                <View style={s.divider} />
+                <StatRow
+                  label={t('connectionBadge.labelAudioBitrate')}
+                  value={stats?.audioBitrateKbps ?? null}
                   unit="kbps"
                   color={Colors.textSecondary}
                 />
@@ -179,8 +186,7 @@ export function ConnectionBadge({ state, stats }: ConnectionBadgeProps) {
               <Text style={s.closeBtnText}>{t('generic.close')}</Text>
             </TouchableOpacity>
 
-          </Pressable>
-        </Pressable>
+        </View>
       </Modal>
     </>
   );
@@ -218,11 +224,14 @@ const s = StyleSheet.create({
   },
 
   overlay: {
-    flex:            1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent:  'flex-end',
   },
   sheet: {
+    position:             'absolute',
+    bottom:               0,
+    left:                 0,
+    right:                0,
     backgroundColor:      Colors.bgCard,
     borderTopLeftRadius:  24,
     borderTopRightRadius: 24,

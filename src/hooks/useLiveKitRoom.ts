@@ -23,6 +23,7 @@ export interface ConnectionStats {
   packetLoss: number | null;
   jitterMs: number | null;
   bitrateKbps: number | null;
+  audioBitrateKbps: number | null;
   transport: string | null;
   updatedAt: Date | null;
 }
@@ -59,8 +60,9 @@ export function useLiveKitRoom({
   const [roomClosedByHost, setRoomClosedByHost] = useState(false);
   const [stats, setStats] = useState<ConnectionStats>({
     latencyMs: null, packetLoss: null, jitterMs: null,
-    bitrateKbps: null, transport: null, updatedAt: null,
+    bitrateKbps: null, audioBitrateKbps: null, transport: null, updatedAt: null,
   });
+  const prevOutboundRef = useRef<{ bytesSent: number; timestamp: number } | null>(null);
 
   const refreshParticipants = useCallback((room: Room) => {
     try {
@@ -125,8 +127,9 @@ export function useLiveKitRoom({
 
       let latency: number | null = null, loss: number | null = null,
         jitter: number | null = null, bitrate: number | null = null,
-        transport: string | null = null;
+        audioBitrate: number | null = null, transport: string | null = null;
 
+      const now = Date.now();
       reports.forEach((r: any) => {
         if (r.type === 'candidate-pair' && (r.state === 'succeeded' || r.nominated)) {
           if (r.currentRoundTripTime != null) latency = Math.round(r.currentRoundTripTime * 1000);
@@ -139,9 +142,20 @@ export function useLiveKitRoom({
             loss = total > 0 ? Math.round((r.packetsLost / total) * 1000) / 10 : 0;
           }
         }
+        if (r.type === 'outbound-rtp' && r.kind === 'audio' && r.bytesSent != null) {
+          const prev = prevOutboundRef.current;
+          if (prev) {
+            const dtMs = now - prev.timestamp;
+            const dBytes = r.bytesSent - prev.bytesSent;
+            if (dtMs > 0 && dBytes >= 0) {
+              audioBitrate = Math.round((dBytes * 8) / (dtMs / 1000) / 1000);
+            }
+          }
+          prevOutboundRef.current = { bytesSent: r.bytesSent, timestamp: now };
+        }
         if (r.type === 'local-candidate' && r.protocol) transport = (r.protocol as string).toUpperCase();
       });
-      setStats({ latencyMs: latency, packetLoss: loss, jitterMs: jitter, bitrateKbps: bitrate, transport, updatedAt: new Date() });
+      setStats({ latencyMs: latency, packetLoss: loss, jitterMs: jitter, bitrateKbps: bitrate, audioBitrateKbps: audioBitrate, transport, updatedAt: new Date() });
     } catch { /* Stats unavailable */ }
   }, []);
 
