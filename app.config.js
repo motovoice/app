@@ -47,7 +47,9 @@ export default {
         NSMicrophoneUsageDescription:
           "MotoVoice needs microphone permissions to use it for voice chat.",
         NSCameraUsageDescription:
-          "MotoVoice needs camera permissions to scan QR-Codes."
+          "MotoVoice needs camera permissions to scan QR-Codes.",
+        NSUserNotificationsUsageDescription:
+          "MotoVoice needs permissions to display notifications about channel connection status."
       }
     },
     plugins: [
