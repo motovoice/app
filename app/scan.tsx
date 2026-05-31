@@ -14,6 +14,7 @@ export default function ScanScreen() {
   const [scanned, setScanned]             = useState(false);
   const [error, setError]                 = useState<string | null>(null);
   const [joining, setJoining]             = useState(false);
+  const handlingRef                       = useRef(false);
 
   useEffect(() => {
     Camera.requestCameraPermissionsAsync().then(({ status }) => {
@@ -22,7 +23,8 @@ export default function ScanScreen() {
   }, []);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
-    if (scanned || joining) return;
+    if (handlingRef.current) return;
+    handlingRef.current = true;
     setScanned(true);
     Vibration.vibrate(80);
 
@@ -40,6 +42,7 @@ export default function ScanScreen() {
       setJoining(true);
       const displayName = await storage.getDisplayName();
       const result = await api.joinRoom(roomId, displayName ?? 'Gast');
+      if (!result) throw new Error(t('scan.channelNotFound'));
 
       router.replace({
         pathname: '/channel',
@@ -55,6 +58,7 @@ export default function ScanScreen() {
       setError(e?.message ?? t('scan.channelNotFound'));
       setScanned(false);
       setJoining(false);
+      handlingRef.current = false;
     }
   };
 
