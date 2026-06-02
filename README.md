@@ -12,8 +12,8 @@
     <br />
     <br />
     <p>      
-      <a href=''>
-        <img alt='Get it on Google Play' src='assets/play_store.svg' height="60"/>
+      <a href='https://github.com/motovoice/app/releases/latest'>
+        <img alt='Get it for Android' src='assets/android.svg' height="60"/>
       </a>
       <a href="">
           <img alt="Get it on the App Store" src="assets/app_store.svg" height="60">
@@ -31,15 +31,15 @@ Due to the fact, that I'm writing this app in my free time as a hobby, I can not
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
-
 MotoVoice brings voice communication over IP to every intercom or headset.
 Create a voice channel and invite your friends via QR-Code or link.
 A channel is valid for 24 hours. After this, the channel gets automatically deleted.
-Currently you have to host the server yourself. The code is available [here](https://github.com/motovoice/server)
-
 
 ## Reason behind the project
 I ride motorcycles in my free time and was connecting with friends via bluetooth intercoms while doing so. But I was not satisfied with the audio quality and the range of the intercoms. Also if people have different intercoms like Sena/Cardo..., there were always problems. So I decided to build an IP based solution which is easy to use and works with all intercoms/headsets.
+
+## Server
+Currently you have to host the server yourself. The code is available [here](https://github.com/motovoice/server)
 
 ## Benefits
 These are the main benefits to direct bluetooth intercom connections:
