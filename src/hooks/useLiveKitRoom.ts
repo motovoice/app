@@ -5,8 +5,31 @@ import {
   ConnectionState,
   AudioPresets,
   type RemoteParticipant,
+  type ReconnectPolicy,
+  type ReconnectContext,
 } from 'livekit-client';
 import { AudioSession } from '@livekit/react-native';
+
+// Riders often lose connectivity briefly while underway (tunnels, dead zones) and
+// can't interact with the phone — keep retrying for up to 10 minutes so the app
+// reconnects on its own once signal returns. The first attempts mirror LiveKit's
+// default backoff (fast retries for transient blips); afterwards we settle into a
+// steady 7-10s cadence rather than LiveKit's default 7s-flat to spread out retries.
+const RECONNECT_TOTAL_BUDGET_MS = 10 * 60 * 1000;
+const RECONNECT_INITIAL_DELAYS_MS = [0, 300, 1200, 2700, 4800];
+const RECONNECT_STEADY_MIN_MS = 7000;
+const RECONNECT_STEADY_MAX_MS = 10000;
+
+class LongRetryReconnectPolicy implements ReconnectPolicy {
+  nextRetryDelayInMs({ retryCount, elapsedMs }: ReconnectContext): number | null {
+    if (elapsedMs >= RECONNECT_TOTAL_BUDGET_MS) return null;
+
+    if (retryCount < RECONNECT_INITIAL_DELAYS_MS.length) {
+      return RECONNECT_INITIAL_DELAYS_MS[retryCount];
+    }
+    return RECONNECT_STEADY_MIN_MS + Math.random() * (RECONNECT_STEADY_MAX_MS - RECONNECT_STEADY_MIN_MS);
+  }
+}
 
 export interface Participant {
   identity: string;
@@ -165,6 +188,7 @@ export function useLiveKitRoom({
     const room = new Room({
       adaptiveStream: true,
       dynacast: true,
+      reconnectPolicy: new LongRetryReconnectPolicy(),
       audioCaptureDefaults: {
         echoCancellation: audioRef.current.echoCancellation,
         noiseSuppression: audioRef.current.noiseSuppression,
