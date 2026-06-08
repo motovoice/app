@@ -15,5 +15,7 @@ android/
 ios/
 package-lock.json
 yarn.lock
+adi-registration.properties
+licenses.generated.json
 
 expo-env.d.ts

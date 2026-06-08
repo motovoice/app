@@ -6,45 +6,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/utils/theme';
+import LICENSES from '@/utils/licenses.generated.json';
 
 interface LicensesModalProps {
   visible: boolean;
   onClose: () => void;
 }
-
-interface LicenseEntry {
-  name: string;
-  license: string;
-  copyright: string;
-}
-
-const LICENSES: LicenseEntry[] = [
-  { name: 'React',                          license: 'MIT',        copyright: '© Meta Platforms, Inc.' },
-  { name: 'React Native',                   license: 'MIT',        copyright: '© Meta Platforms, Inc.' },
-  { name: 'Expo SDK',                       license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-asset',                     license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-audio',                     license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-build-properties',          license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-camera',                    license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-dev-client',                license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-haptics',                   license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-router',                    license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-secure-store',              license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-status-bar',                license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-system-ui',                 license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: 'expo-task-manager',              license: 'MIT',        copyright: '© 650 Industries, Inc.' },
-  { name: '@livekit/react-native',          license: 'Apache-2.0', copyright: '© LiveKit, Inc.' },
-  { name: '@livekit/react-native-webrtc',   license: 'MIT',        copyright: '© LiveKit, Inc.' },
-  { name: 'livekit-client',                 license: 'Apache-2.0', copyright: '© LiveKit, Inc.' },
-  { name: '@react-navigation/native',       license: 'MIT',        copyright: '© React Navigation Contributors' },
-  { name: 'i18next',                        license: 'MIT',        copyright: '© i18next' },
-  { name: 'react-i18next',                  license: 'MIT',        copyright: '© i18next' },
-  { name: 'react-native-notify-kit',        license: 'MIT',        copyright: '© react-native-notify-kit contributors' },
-  { name: 'react-native-qrcode-svg',        license: 'MIT',        copyright: '© awesomejerry' },
-  { name: 'react-native-safe-area-context', license: 'MIT',        copyright: '© Th3rdwave' },
-  { name: 'react-native-screens',           license: 'MIT',        copyright: '© Software Mansion' },
-  { name: 'react-native-svg',               license: 'MIT',        copyright: '© Bartłomiej Kura' },
-];
 
 const LICENSE_COLOR: Record<string, string> = {
   'MIT':          Colors.success,
