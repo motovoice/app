@@ -32,6 +32,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Generate license list
+        run: npm run licenses:generate
+
       - name: Set version from tag
         run: npm version ${{ github.ref_name }} --no-git-tag-version
 
@@ -92,6 +95,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Generate license list
+        run: npm run licenses:generate
+
       - name: Set version from tag
         run: npm version ${{ github.ref_name }} --no-git-tag-version
 
@@ -149,6 +155,9 @@ jobs:
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Generate license list
+        run: npm run licenses:generate
 
       - name: Set version from tag
         run: npm version ${{ github.ref_name }} --no-git-tag-version
