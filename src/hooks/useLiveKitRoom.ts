@@ -17,8 +17,8 @@ import { AudioSession } from '@livekit/react-native';
 // steady 7-10s cadence rather than LiveKit's default 7s-flat to spread out retries.
 const RECONNECT_TOTAL_BUDGET_MS = 10 * 60 * 1000;
 const RECONNECT_INITIAL_DELAYS_MS = [0, 300, 1200, 2700, 4800];
-const RECONNECT_STEADY_MIN_MS = 7000;
-const RECONNECT_STEADY_MAX_MS = 10000;
+const RECONNECT_STEADY_MIN_MS = 5000;
+const RECONNECT_STEADY_MAX_MS = 6500;
 
 class LongRetryReconnectPolicy implements ReconnectPolicy {
   nextRetryDelayInMs({ retryCount, elapsedMs }: ReconnectContext): number | null {
