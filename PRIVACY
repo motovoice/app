@@ -1,0 +1,7 @@
+Privacy
+
+MotoVoice does not collect any data from users. 
+Displayname provided during setup is only ever send to the instance of MotoVoice given in the server URL field. 
+Audio data are only ever streamed to the configured instance. 
+No data is uploaded or recorded anywhere else. 
+Users are responsible for setting up and maintaining their instance, or trusting the operator of an instance they are using.
