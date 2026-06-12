@@ -15,7 +15,7 @@
       <a href='https://github.com/motovoice/app/releases/latest'>
         <img alt='Get it for Android' src='assets/android.svg' height="60"/>
       </a>
-      <a href="">
+      <a href="https://apps.apple.com/de/app/motovoice/id6775539207">
           <img alt="Get it on the App Store" src="assets/app_store.svg" height="60">
       </a>
     </p>
