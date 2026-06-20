@@ -44,6 +44,7 @@ export default {
       icon: "./assets/apple_icon.icon",
       infoPlist: {
         UIBackgroundModes: ["audio", "voip"],
+        ITSAppUsesNonExemptEncryption: false,
         NSMicrophoneUsageDescription:
           "MotoVoice needs microphone permissions to use it for voice chat.",
         NSCameraUsageDescription:
