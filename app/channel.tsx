@@ -11,6 +11,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
 import { useLiveKitRoom } from '@/hooks/useLiveKitRoom';
 import { useForegroundService } from '@/hooks/useForegroundService';
+import { useReconnectSound } from '@/hooks/useReconnectSound';
 import { PTTButton } from '@/components/PTTButton';
 import { ParticipantCard } from '@/components/ParticipantCard';
 import { ConnectionBadge } from '@/components/ConnectionBadge';
@@ -80,6 +81,7 @@ export default function ChannelScreen() {
   });
 
   const { permissionDenied } = useForegroundService(roomId ?? '', connectionState);
+  useReconnectSound(connectionState);
 
   useEffect(() => {
     if (!permissionDenied) return;
