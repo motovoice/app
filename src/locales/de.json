@@ -116,7 +116,13 @@
     "serverUrlReset": "Standard wiederherstellen",
     "sectionAbout": "Über die App",
     "openSourceLicenses": "Open-Source-Lizenzen",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "sectionDebug": "Debug",
+    "debugLog": "Verbindungs-Log",
+    "debugLogTitle": "Verbindungs-Log",
+    "debugLogEmpty": "Noch keine Log-Einträge.",
+    "debugLogExport": "Als Datei exportieren",
+    "debugLogClear": "Log löschen"
   },
   "licenses": {
     "title": "Open-Source-Lizenzen",

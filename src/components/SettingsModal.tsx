@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, Modal, Pressable,
+  View, Text, StyleSheet, Modal, TouchableWithoutFeedback,
   Switch, TouchableOpacity, ScrollView, TextInput,
   Keyboard, ActivityIndicator,
 } from 'react-native';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/utils/theme';
 import { storage, DEFAULT_AUDIO_SETTINGS, type AudioSettings } from '@/services/storage';
 import { api } from '@/services/api';
+import { DebugLogModal } from '@/components/DebugLogModal';
 import Constants from 'expo-constants';
 
 interface SettingsModalProps {
@@ -24,6 +25,7 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
   const [kbHeight, setKbHeight]       = useState(0);
   const [urlChecking, setUrlChecking] = useState(false);
   const [urlError, setUrlError]         = useState<string | null>(null);
+  const [showDebugLog, setShowDebugLog] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -83,15 +85,18 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
   };
 
   return (
+    <>
     <Modal
-      visible={visible}
+      visible={visible && !showDebugLog}
       transparent
       animationType="slide"
       onRequestClose={onClose}
     >
-      <Pressable style={s.overlay} onPress={onClose}>
-        {/* Inner view: prevent tap propagation */}
-        <Pressable style={s.sheet} onPress={() => {}}>
+      <View style={s.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={StyleSheet.absoluteFillObject} />
+        </TouchableWithoutFeedback>
+        <View style={s.sheet}>
 
           <View style={s.handle} />
           <Text style={s.title}>{t('settings.title')}</Text>
@@ -185,6 +190,15 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
               </View>
             </View>
 
+            {/* Debug */}
+            <Text style={s.sectionHeader}>{t('settings.sectionDebug')}</Text>
+            <View style={s.card}>
+              <TouchableOpacity style={s.settingRow} onPress={() => setShowDebugLog(true)}>
+                <Text style={s.settingLabel}>{t('settings.debugLog')}</Text>
+                <Text style={s.chevron}>›</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* About */}
             <Text style={s.sectionHeader}>{t('settings.sectionAbout')}</Text>
             <View style={s.card}>
@@ -203,10 +217,12 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
             <Text style={s.closeBtnText}>{t('generic.close')}</Text>
           </TouchableOpacity>
 
-        </Pressable>
-      </Pressable>
-
+        </View>
+      </View>
     </Modal>
+
+    <DebugLogModal visible={showDebugLog} onClose={() => setShowDebugLog(false)} />
+    </>
   );
 }
 
