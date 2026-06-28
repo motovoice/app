@@ -23,6 +23,13 @@ export function DebugLogModal({ visible, onClose }: DebugLogModalProps) {
   }, [visible]);
 
   const handleExport = async () => {
+    // expo-sharing's iOS read-permission check has a known regression that rejects
+    // the app's own document directory files (expo/expo#39861) — use the native
+    // Share sheet directly there instead. Android is unaffected.
+    if (Platform.OS === 'ios') {
+      await Share.share({ url: debugLog.filePath });
+      return;
+    }
     if (!(await Sharing.isAvailableAsync())) return;
     await Sharing.shareAsync(debugLog.filePath);
   };
