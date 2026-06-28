@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Modal, TouchableWithoutFeedback,
-  TouchableOpacity, ScrollView,
+  TouchableOpacity, ScrollView, Platform, Share,
 } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { useTranslation } from 'react-i18next';
@@ -13,9 +13,17 @@ interface DebugLogModalProps {
   onClose: () => void;
 }
 
+function colorForLine(line: string): string {
+  if (/\[error\]/i.test(line)) return Colors.danger;
+  if (/\[warn\]/i.test(line) || line.includes('Disconnected')) return Colors.warning;
+  if (/\[debug\]/i.test(line)) return Colors.textMuted;
+  return Colors.textSecondary;
+}
+
 export function DebugLogModal({ visible, onClose }: DebugLogModalProps) {
   const { t } = useTranslation();
   const [content, setContent] = useState('');
+  const lines = content.split('\n').filter(Boolean);
 
   useEffect(() => {
     if (!visible) return;
@@ -54,11 +62,19 @@ export function DebugLogModal({ visible, onClose }: DebugLogModalProps) {
           <View style={s.handle} />
           <Text style={s.title}>{t('settings.debugLogTitle')}</Text>
 
-          <ScrollView style={s.logBox} nestedScrollEnabled>
+          <ScrollView style={s.logBox} contentContainerStyle={s.logContent} nestedScrollEnabled>
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator>
-              <Text style={s.logText}>
-                {content || t('settings.debugLogEmpty')}
-              </Text>
+              <View>
+                {lines.length === 0 ? (
+                  <Text style={s.logText}>{t('settings.debugLogEmpty')}</Text>
+                ) : (
+                  lines.map((line, i) => (
+                    <Text key={i} style={[s.logText, { color: colorForLine(line) }]}>
+                      {line}
+                    </Text>
+                  ))
+                )}
+              </View>
             </ScrollView>
           </ScrollView>
 
@@ -118,7 +134,9 @@ const s = StyleSheet.create({
     borderRadius:    Radius.lg,
     borderWidth:     1,
     borderColor:     Colors.border,
-    padding:         Spacing.sm,
+  },
+  logContent: {
+    padding: Spacing.sm,
   },
   logText: {
     fontSize:   FontSize.xs,
