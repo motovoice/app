@@ -27,6 +27,7 @@ function appendLine(line: string) {
 
 export const debugLog = {
   log(level: string, message: string, context?: object) {
+    if(level === "debug" && !__DEV__) return;
     appendLine(context ? `[${level}] ${message} ${JSON.stringify(context)}` : `[${level}] ${message}`);
   },
 
