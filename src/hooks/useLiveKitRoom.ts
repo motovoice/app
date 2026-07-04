@@ -140,7 +140,7 @@ export function useLiveKitRoom({
 
       setParticipants(all);
     } catch (e) {
-      console.warn('refreshParticipants error:', e);
+      debugLog.log("error", `refreshParticipants error: ${e}`);
     }
   }, []);
 
@@ -244,6 +244,7 @@ export function useLiveKitRoom({
 
     const configureAudio = async () => {
       await AudioSession.startAudioSession();
+      debugLog.log("info", "Audio session started")
     };
 
     const connect = async () => {
@@ -271,6 +272,7 @@ export function useLiveKitRoom({
       room.disconnect();
       roomRef.current = null;
       AudioSession.stopAudioSession().catch(() => {});
+      debugLog.log("info", "Audio session stopped")
     };
   }, [url, token, refreshParticipants, updateStats]);
 
@@ -279,6 +281,7 @@ export function useLiveKitRoom({
     if (!room) return;
     await room.localParticipant.setMicrophoneEnabled(true);
     setIsMuted(false);
+    debugLog.log("info", "Microphone enabled");
   }, []);
 
   const stopSpeaking = useCallback(async () => {
@@ -286,6 +289,7 @@ export function useLiveKitRoom({
     if (!room) return;
     await room.localParticipant.setMicrophoneEnabled(false);
     setIsMuted(true);
+    debugLog.log("info", "Microphone disabled");
   }, []);
 
   const disconnect = useCallback(() => {
