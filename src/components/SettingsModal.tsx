@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, Modal, Pressable,
+  View, Text, StyleSheet, Modal, TouchableWithoutFeedback,
   Switch, TouchableOpacity, ScrollView, TextInput,
   Keyboard, ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/utils/theme';
-import { storage, DEFAULT_AUDIO_SETTINGS, type AudioSettings } from '@/services/storage';
+import { storage, DEFAULT_AUDIO_SETTINGS, DEFAULT_LOG_LEVEL, type AudioSettings } from '@/services/storage';
 import { api } from '@/services/api';
+import { debugLog } from '@/services/debugLog';
+import { setLogLevel, LogLevel } from 'livekit-client';
+import { DebugLogModal } from '@/components/DebugLogModal';
 import Constants from 'expo-constants';
 
 interface SettingsModalProps {
@@ -24,6 +27,8 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
   const [kbHeight, setKbHeight]       = useState(0);
   const [urlChecking, setUrlChecking] = useState(false);
   const [urlError, setUrlError]         = useState<string | null>(null);
+  const [showDebugLog, setShowDebugLog] = useState(false);
+  const [logLevel, setLogLevelState]   = useState(DEFAULT_LOG_LEVEL);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -42,7 +47,23 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
       const full = url ?? api.getBaseUrl();
       setServerUrl(full.replace(/^https?:\/\//, ''));
     });
+    storage.getLogLevel().then(level => {
+      setLogLevelState(level);
+      applyLogLevel(level);
+    });
   }, [visible]);
+
+  const applyLogLevel = (level: string) => {
+    const lvl = LogLevel[level as keyof typeof LogLevel] ?? LogLevel.info;
+    setLogLevel(lvl);
+    debugLog.setLevel(level);
+  };
+
+  const handleLogLevel = async (level: string) => {
+    setLogLevelState(level);
+    applyLogLevel(level);
+    await storage.setLogLevel(level);
+  };
 
   const handleServerUrlBlur = async () => {
     const host    = serverUrl.trim().replace(/\/$/, '');
@@ -83,15 +104,18 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
   };
 
   return (
+    <>
     <Modal
-      visible={visible}
+      visible={visible && !showDebugLog}
       transparent
       animationType="slide"
       onRequestClose={onClose}
     >
-      <Pressable style={s.overlay} onPress={onClose}>
-        {/* Inner view: prevent tap propagation */}
-        <Pressable style={s.sheet} onPress={() => {}}>
+      <View style={s.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={StyleSheet.absoluteFillObject} />
+        </TouchableWithoutFeedback>
+        <View style={s.sheet}>
 
           <View style={s.handle} />
           <Text style={s.title}>{t('settings.title')}</Text>
@@ -185,6 +209,32 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
               </View>
             </View>
 
+            {/* Debug */}
+            <Text style={s.sectionHeader}>{t('settings.sectionDebug')}</Text>
+            <View style={s.card}>
+              <View style={s.logLevelRow}>
+                <Text style={s.settingLabel}>{t('settings.logLevel')}</Text>
+                <View style={s.logLevelPills}>
+                  {(['debug', 'info', 'warn', 'error'] as const).map(level => (
+                    <TouchableOpacity
+                      key={level}
+                      style={[s.logLevelPill, logLevel === level && s.logLevelPillActive]}
+                      onPress={() => handleLogLevel(level)}
+                    >
+                      <Text style={[s.logLevelPillText, logLevel === level && s.logLevelPillTextActive]}>
+                        {level.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+              <View style={s.divider} />
+              <TouchableOpacity style={s.settingRow} onPress={() => setShowDebugLog(true)}>
+                <Text style={s.settingLabel}>{t('settings.debugLog')}</Text>
+                <Text style={s.chevron}>›</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* About */}
             <Text style={s.sectionHeader}>{t('settings.sectionAbout')}</Text>
             <View style={s.card}>
@@ -203,10 +253,12 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
             <Text style={s.closeBtnText}>{t('generic.close')}</Text>
           </TouchableOpacity>
 
-        </Pressable>
-      </Pressable>
-
+        </View>
+      </View>
     </Modal>
+
+    <DebugLogModal visible={showDebugLog} onClose={() => setShowDebugLog(false)} />
+    </>
   );
 }
 
@@ -276,6 +328,39 @@ const s = StyleSheet.create({
     borderColor:     Colors.border,
     marginBottom:    Spacing.md,
     overflow:        'hidden',
+  },
+  logLevelRow: {
+    flexDirection:     'row',
+    alignItems:        'center',
+    justifyContent:    'space-between',
+    paddingVertical:   Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    gap:               Spacing.sm,
+  },
+  logLevelPills: {
+    flexDirection: 'row',
+    gap:           6,
+  },
+  logLevelPill: {
+    paddingVertical:   5,
+    paddingHorizontal: 10,
+    borderRadius:      Radius.md,
+    borderWidth:       1,
+    borderColor:       Colors.border,
+    backgroundColor:   Colors.bg,
+  },
+  logLevelPillActive: {
+    borderColor:     Colors.primary,
+    backgroundColor: Colors.primaryGlow,
+  },
+  logLevelPillText: {
+    fontSize:   FontSize.xs,
+    color:      Colors.textMuted,
+    fontWeight: FontWeight.medium,
+  },
+  logLevelPillTextActive: {
+    color:      Colors.primary,
+    fontWeight: FontWeight.bold,
   },
   langRow: {
     flexDirection:   'row',

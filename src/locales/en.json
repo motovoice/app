@@ -116,7 +116,14 @@
     "serverUrlReset": "Restore default",
     "sectionAbout": "About",
     "openSourceLicenses": "Open Source Licenses",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "sectionDebug": "Debug",
+    "logLevel": "Log Level",
+    "debugLog": "App Log",
+    "debugLogTitle": "App Log",
+    "debugLogEmpty": "No log entries yet.",
+    "debugLogExport": "Export as File",
+    "debugLogClear": "Clear Log"
   },
   "licenses": {
     "title": "Open Source Licenses",

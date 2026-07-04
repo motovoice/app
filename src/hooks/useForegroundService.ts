@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, PermissionsAndroid } from 'react-native';
 import notifee, { AndroidImportance, AndroidVisibility, AuthorizationStatus } from 'react-native-notify-kit';
 import { ConnectionState } from 'livekit-client';
+import { debugLog } from '@/services/debugLog';
 
 const CHANNEL_ID  = 'motovoice_channel';
 const NOTIFY_ID    = 'motovoice_foreground';
@@ -93,7 +94,7 @@ export function useForegroundService(roomId: string, connectionState: Connection
     };
 
     start().catch((e) => {
-      console.warn('[ForegroundService] start failed:', e);
+      debugLog.log("error", `ForegroundService start failed: ${e}`);
       setPermissionDenied(true);
     });
 

@@ -4,11 +4,21 @@ import {
   RoomEvent,
   ConnectionState,
   AudioPresets,
+  DisconnectReason,
+  setLogLevel,
+  setLogExtension,
+  LogLevel,
   type RemoteParticipant,
   type ReconnectPolicy,
   type ReconnectContext,
 } from 'livekit-client';
 import { AudioSession } from '@livekit/react-native';
+import { debugLog } from '@/services/debugLog';
+
+setLogLevel(__DEV__ ? LogLevel.debug : LogLevel.info);
+setLogExtension((level, msg, context) => {
+  debugLog.log(LogLevel[level], msg, context);
+});
 
 // Riders often lose connectivity briefly while underway (tunnels, dead zones) and
 // can't interact with the phone — keep retrying for up to 10 minutes so the app
@@ -130,7 +140,7 @@ export function useLiveKitRoom({
 
       setParticipants(all);
     } catch (e) {
-      console.warn('refreshParticipants error:', e);
+      debugLog.log("error", `refreshParticipants error: ${e}`);
     }
   }, []);
 
@@ -223,16 +233,18 @@ export function useLiveKitRoom({
     room.on(RoomEvent.ActiveSpeakersChanged, () => refreshParticipants(room));
     room.on(RoomEvent.TrackMuted, () => refreshParticipants(room));
     room.on(RoomEvent.TrackUnmuted, () => refreshParticipants(room));
-    room.on(RoomEvent.Disconnected, (reason?: any) => {
+    room.on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
+      debugLog.log("warn", `Disconnected, reason: ${reason !== undefined ? DisconnectReason[reason] : 'undefined'}`);
       setConnectionState(ConnectionState.Disconnected);
       setParticipants([]);
-      if (reason === 5 || reason?.value === 5 || reason === 'ROOM_DELETED') {
+      if (reason === DisconnectReason.ROOM_DELETED) {
         setRoomClosedByHost(true);
       }
     });
 
     const configureAudio = async () => {
       await AudioSession.startAudioSession();
+      debugLog.log("info", "Audio session started")
     };
 
     const connect = async () => {
@@ -260,6 +272,7 @@ export function useLiveKitRoom({
       room.disconnect();
       roomRef.current = null;
       AudioSession.stopAudioSession().catch(() => {});
+      debugLog.log("info", "Audio session stopped")
     };
   }, [url, token, refreshParticipants, updateStats]);
 
@@ -268,6 +281,7 @@ export function useLiveKitRoom({
     if (!room) return;
     await room.localParticipant.setMicrophoneEnabled(true);
     setIsMuted(false);
+    debugLog.log("info", "Microphone enabled");
   }, []);
 
   const stopSpeaking = useCallback(async () => {
@@ -275,6 +289,7 @@ export function useLiveKitRoom({
     if (!room) return;
     await room.localParticipant.setMicrophoneEnabled(false);
     setIsMuted(true);
+    debugLog.log("info", "Microphone disabled");
   }, []);
 
   const disconnect = useCallback(() => {

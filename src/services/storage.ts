@@ -5,6 +5,9 @@ const AUDIO_SETTINGS_KEY  = 'motovoice_audio_settings';
 const LANGUAGE_KEY        = 'motovoice_language';
 const SERVER_URL_KEY      = 'motovoice_server_url';
 const LAST_CHANNEL_KEY    = 'motovoice_last_channel';
+const LOG_LEVEL_KEY       = 'motovoice_log_level';
+
+export const DEFAULT_LOG_LEVEL = __DEV__ ? 'debug' : 'info';
 
 export interface LastChannel {
   roomId:      string;
@@ -74,6 +77,14 @@ export const storage = {
 
   clearLastChannel: async (): Promise<void> => {
     await SecureStore.deleteItemAsync(LAST_CHANNEL_KEY);
+  },
+
+  getLogLevel: async (): Promise<string> => {
+    return (await SecureStore.getItemAsync(LOG_LEVEL_KEY)) ?? DEFAULT_LOG_LEVEL;
+  },
+
+  setLogLevel: async (level: string): Promise<void> => {
+    await SecureStore.setItemAsync(LOG_LEVEL_KEY, level);
   },
 
   setServerUrl: async (url: string | null): Promise<void> => {
