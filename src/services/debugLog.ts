@@ -3,6 +3,9 @@ import { File, Paths } from 'expo-file-system';
 const logFile = new File(Paths.document, 'debug.log');
 const MAX_LOG_CHARS = 500_000; // trim oldest entries once the file grows past this
 
+const LEVEL_ORDER = ['debug', 'info', 'warn', 'error'];
+let _minLevel = __DEV__ ? 'debug' : 'info';
+
 let writeQueue: Promise<void> = Promise.resolve();
 
 function timestamp(): string {
@@ -26,8 +29,12 @@ function appendLine(line: string) {
 }
 
 export const debugLog = {
+  setLevel(level: string) {
+    _minLevel = level;
+  },
+
   log(level: string, message: string, context?: object) {
-    if(level === "debug" && !__DEV__) return;
+    if (LEVEL_ORDER.indexOf(level) < LEVEL_ORDER.indexOf(_minLevel)) return;
     appendLine(context ? `[${level}] ${message} ${JSON.stringify(context)}` : `[${level}] ${message}`);
   },
 

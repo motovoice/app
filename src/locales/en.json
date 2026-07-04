@@ -118,6 +118,7 @@
     "openSourceLicenses": "Open Source Licenses",
     "version": "Version {{version}}",
     "sectionDebug": "Debug",
+    "logLevel": "Log Level",
     "debugLog": "App Log",
     "debugLogTitle": "App Log",
     "debugLogEmpty": "No log entries yet.",
