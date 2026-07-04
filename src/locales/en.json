@@ -118,8 +118,8 @@
     "openSourceLicenses": "Open Source Licenses",
     "version": "Version {{version}}",
     "sectionDebug": "Debug",
-    "debugLog": "Connection Log",
-    "debugLogTitle": "Connection Log",
+    "debugLog": "App Log",
+    "debugLogTitle": "App Log",
     "debugLogEmpty": "No log entries yet.",
     "debugLogExport": "Export as File",
     "debugLogClear": "Clear Log"

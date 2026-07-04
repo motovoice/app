@@ -118,8 +118,8 @@
     "openSourceLicenses": "Open-Source-Lizenzen",
     "version": "Version {{version}}",
     "sectionDebug": "Debug",
-    "debugLog": "Verbindungs-Log",
-    "debugLogTitle": "Verbindungs-Log",
+    "debugLog": "App-Log",
+    "debugLogTitle": "App-Log",
     "debugLogEmpty": "Noch keine Log-Einträge.",
     "debugLogExport": "Als Datei exportieren",
     "debugLogClear": "Log löschen"
