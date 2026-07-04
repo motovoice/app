@@ -37,16 +37,30 @@ async function request<T>(
   if (options?.body) headers['Content-Type'] = 'application/json';
   if (options?.headers) Object.assign(headers, options.headers);
 
+  const method = options?.method ?? 'GET';
   const { headers: _h, ...rest } = (options ?? {}) as any;
-  const res = await fetch(`${_apiBase}${path}`, { ...rest, headers });
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body?.error ?? `HTTP ${res.status}`);
+  const { debugLog } = await import('@/services/debugLog');
+
+  try {
+    const res = await fetch(`${_apiBase}${path}`, { ...rest, headers });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const err = body?.error ?? res.status;
+      debugLog.log("warn", `${method} ${path} → ${err}`);
+      throw new Error(err);
+    }
+
+    debugLog.log("info", `${method} ${path} → ${res.status}`);
+    if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+    return res.json();
+  } catch (e: any) {
+    if (!e.message?.startsWith('API')) {
+      debugLog.log("error", `${method} ${path} → ${e.message ?? 'network error'}`);
+    }
+    throw e;
   }
-
-  if (res.status === 204 || res.headers.get('content-length') === '0') return null;
-  return res.json();
 }
 
 export const api = {

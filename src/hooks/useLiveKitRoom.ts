@@ -17,7 +17,7 @@ import { debugLog } from '@/services/debugLog';
 
 setLogLevel(__DEV__ ? LogLevel.debug : LogLevel.info);
 setLogExtension((level, msg, context) => {
-  debugLog.log(`[${LogLevel[level]}] ${msg}`, context);
+  debugLog.log(LogLevel[level], msg, context);
 });
 
 // Riders often lose connectivity briefly while underway (tunnels, dead zones) and
@@ -234,7 +234,7 @@ export function useLiveKitRoom({
     room.on(RoomEvent.TrackMuted, () => refreshParticipants(room));
     room.on(RoomEvent.TrackUnmuted, () => refreshParticipants(room));
     room.on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
-      debugLog.log(`Disconnected, reason: ${reason !== undefined ? DisconnectReason[reason] : 'undefined'}`);
+      debugLog.log("warn", `Disconnected, reason: ${reason !== undefined ? DisconnectReason[reason] : 'undefined'}`);
       setConnectionState(ConnectionState.Disconnected);
       setParticipants([]);
       if (reason === DisconnectReason.ROOM_DELETED) {

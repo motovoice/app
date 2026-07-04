@@ -26,8 +26,8 @@ function appendLine(line: string) {
 }
 
 export const debugLog = {
-  log(message: string, context?: object) {
-    appendLine(context ? `${message} ${JSON.stringify(context)}` : message);
+  log(level: string, message: string, context?: object) {
+    appendLine(context ? `[${level}] ${message} ${JSON.stringify(context)}` : `[${level}] ${message}`);
   },
 
   async read(): Promise<string> {

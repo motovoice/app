@@ -15,7 +15,7 @@ interface DebugLogModalProps {
 
 function colorForLine(line: string): string {
   if (/\[error\]/i.test(line)) return Colors.danger;
-  if (/\[warn\]/i.test(line) || line.includes('Disconnected')) return Colors.warning;
+  if (/\[warn\]/i.test(line)) return Colors.warning;
   if (/\[debug\]/i.test(line)) return Colors.textMuted;
   return Colors.textSecondary;
 }
