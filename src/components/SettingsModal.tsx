@@ -210,7 +210,7 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
             </View>
 
             {/* Debug */}
-            <Text style={s.sectionHeader}>{t('settings.sectionDebug')}</Text>
+            <Text style={s.sectionHeader}>{t('settings.sectionLog')}</Text>
             <View style={s.card}>
               <View style={s.logLevelRow}>
                 <Text style={s.settingLabel}>{t('settings.logLevel')}</Text>
