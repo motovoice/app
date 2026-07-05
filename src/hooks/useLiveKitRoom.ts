@@ -108,7 +108,7 @@ export function useLiveKitRoom({
           (local.name === hostNameRef.current || local.identity === hostNameRef.current);
         all.push({
           identity: local.identity ?? '', name: local.name || local.identity || 'Du',
-          isSpeaking: local.isSpeaking ?? false, isMuted: (local as any).isMuted ?? true,
+          isSpeaking: local.isSpeaking ?? false, isMuted: !local.isMicrophoneEnabled,
           isLocal: true, isDisconnected: false, isHost: localIsHost,
         });
         if (local.identity) activeIdentities.add(local.identity);
@@ -123,7 +123,7 @@ export function useLiveKitRoom({
               (p.name === hostNameRef.current || p.identity === hostNameRef.current);
             all.push({
               identity: p.identity, name: p.name || p.identity,
-              isSpeaking: p.isSpeaking ?? false, isMuted: p.isMuted ?? true,
+              isSpeaking: p.isSpeaking ?? false, isMuted: !p.isMicrophoneEnabled,
               isLocal: false, isDisconnected: false, isHost: remoteIsHost,
             });
             activeIdentities.add(p.identity);
