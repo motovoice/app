@@ -123,7 +123,8 @@
     "debugLogTitle": "App Log",
     "debugLogEmpty": "No log entries yet.",
     "debugLogExport": "Export as File",
-    "debugLogClear": "Clear Log"
+    "sectionHelp": "Help",
+    "bugReport": "Bug Report"
   },
   "licenses": {
     "title": "Open Source Licenses",

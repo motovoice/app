@@ -123,7 +123,8 @@
     "debugLogTitle": "App-Log",
     "debugLogEmpty": "Noch keine Log-Einträge.",
     "debugLogExport": "Als Datei exportieren",
-    "debugLogClear": "Log löschen"
+    "sectionHelp": "Hilfe",
+    "bugReport": "Fehler melden"
   },
   "licenses": {
     "title": "Open-Source-Lizenzen",

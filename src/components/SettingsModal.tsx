@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, Modal, TouchableWithoutFeedback,
   Switch, TouchableOpacity, ScrollView, TextInput,
-  Keyboard, ActivityIndicator,
+  Keyboard, ActivityIndicator, Linking
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/utils/theme';
@@ -231,6 +231,15 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
               <View style={s.divider} />
               <TouchableOpacity style={s.settingRow} onPress={() => setShowDebugLog(true)}>
                 <Text style={s.settingLabel}>{t('settings.debugLog')}</Text>
+                <Text style={s.chevron}>›</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Help */}
+            <Text style={s.sectionHeader}>{t('settings.sectionHelp')}</Text>
+            <View style={s.card}>
+              <TouchableOpacity style={s.settingRow} onPress={() => Linking.openURL('https://github.com/motovoice/app/issues')}>
+                <Text style={s.settingLabel}>{t('settings.bugReport')}</Text>
                 <Text style={s.chevron}>›</Text>
               </TouchableOpacity>
             </View>
