@@ -65,6 +65,7 @@ interface UseLiveKitRoomOptions {
   url: string;
   token: string;
   hostName?: string;
+  isLocalHost?: boolean;
   echoCancellation?: boolean;
   noiseSuppression?: boolean;
   autoGainControl?: boolean;
@@ -72,7 +73,7 @@ interface UseLiveKitRoomOptions {
 }
 
 export function useLiveKitRoom({
-  url, token, hostName = '',
+  url, token, hostName = '', isLocalHost = false,
   echoCancellation = true,
   noiseSuppression = true,
   autoGainControl = true,
@@ -80,9 +81,11 @@ export function useLiveKitRoom({
 }: UseLiveKitRoomOptions) {
   const roomRef = useRef<Room | null>(null);
   const hostNameRef = useRef<string>(hostName);
+  const isLocalHostRef = useRef<boolean>(isLocalHost);
   const audioRef = useRef({ echoCancellation, noiseSuppression, autoGainControl, dataSaverMode });
   audioRef.current = { echoCancellation, noiseSuppression, autoGainControl, dataSaverMode };
   hostNameRef.current = hostName;
+  isLocalHostRef.current = isLocalHost;
 
   const ghostsRef = useRef<Map<string, { participant: Participant; timer: ReturnType<typeof setTimeout> }>>(new Map());
 
@@ -104,8 +107,7 @@ export function useLiveKitRoom({
       const local = room.localParticipant;
 
       if (local) {
-        const localIsHost = !!hostNameRef.current &&
-          (local.name === hostNameRef.current || local.identity === hostNameRef.current);
+        const localIsHost = isLocalHostRef.current || (!!hostNameRef.current && local.identity === hostNameRef.current);
         all.push({
           identity: local.identity ?? '', name: local.name || local.identity || 'Du',
           isSpeaking: local.isSpeaking ?? false, isMuted: !local.isMicrophoneEnabled,
@@ -119,8 +121,8 @@ export function useLiveKitRoom({
         (remotes instanceof Map ? Array.from(remotes.values()) : Object.values(remotes as any))
           .forEach((p: any) => {
             if (!p?.identity) return;
-            const remoteIsHost = !!hostNameRef.current &&
-              (p.name === hostNameRef.current || p.identity === hostNameRef.current);
+            const remoteIsHost = !isLocalHostRef.current && !!hostNameRef.current &&
+              (p.identity === hostNameRef.current || p.name === hostNameRef.current);
             all.push({
               identity: p.identity, name: p.name || p.identity,
               isSpeaking: p.isSpeaking ?? false, isMuted: !p.isMicrophoneEnabled,
@@ -216,8 +218,8 @@ export function useLiveKitRoom({
     room.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => setConnectionState(state));
     room.on(RoomEvent.ParticipantConnected, () => refreshParticipants(room));
     room.on(RoomEvent.ParticipantDisconnected, (p: RemoteParticipant) => {
-      const ghostIsHost = !!hostNameRef.current &&
-        (p.name === hostNameRef.current || p.identity === hostNameRef.current);
+      const ghostIsHost = !isLocalHostRef.current && !!hostNameRef.current &&
+        (p.identity === hostNameRef.current || p.name === hostNameRef.current);
       const ghost: Participant = {
         identity: p.identity, name: p.name ?? p.identity,
         isSpeaking: false, isMuted: true, isLocal: false, isDisconnected: true, isHost: ghostIsHost,

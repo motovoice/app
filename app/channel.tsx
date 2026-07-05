@@ -73,7 +73,8 @@ export default function ChannelScreen() {
   } = useLiveKitRoom({
     url:   livekitUrl,
     token: livekitToken,
-    hostName: isHost_ ? (localDisplayName ?? '') : (hostIdentity ?? ''),
+    hostName: hostIdentity ?? '',
+    isLocalHost: isHost_,
     echoCancellation,
     noiseSuppression,
     autoGainControl,

@@ -43,6 +43,7 @@ export default function CreateScreen() {
         livekitUrl:   room.livekitUrl,
         qrPayload:    room.qrPayload,
         isHost:       '1',
+        hostIdentity: room.hostIdentity ?? '',
         deleteSecret: room.deleteSecret,
       },
     });
