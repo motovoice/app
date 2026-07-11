@@ -6,7 +6,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/utils/theme';
 import { storage } from '@/services/storage';
-import { api } from '@/services/api';
+import { api, checkCompatibility } from '@/services/api';
 
 interface ServerSetupModalProps {
   visible:  boolean;
@@ -28,9 +28,12 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
     setLoading(true);
     setError(null);
     try {
-      const res  = await fetch(`${fullUrl}/health`, { headers: { Accept: 'application/json' } });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || json?.status !== 'ok') throw new Error();
+      const health = await api.checkHealth(fullUrl);
+      const compat = checkCompatibility(health);
+      if (!compat.compatible) {
+        setError(t('setup.errorServerOutdated', { min: compat.minVersion, server: compat.serverVersion }));
+        return;
+      }
       await storage.setServerUrl(fullUrl);
       api.setBaseUrl(fullUrl);
       onSaved();

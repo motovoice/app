@@ -99,6 +99,7 @@
     "placeholder": "your-domain.com",
     "save": "Save",
     "errorUnreachable": "Server not reachable. Please check the URL.",
+    "errorServerOutdated": "Server version {{server}} is too old (requires ≥ {{min}}). Please update the server.",
     "serverGuide": "Guide: Set up your own server →"
   },
   "settings": {

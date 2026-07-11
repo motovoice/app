@@ -83,6 +83,7 @@ export default {
       typedRoutes: true
     },
     extra: {
+      minServerVersion: process.env.MIN_SERVER_VERSION || "1.0.0",
       router: {},
       eas: {
         projectId: "0a04c42c-e73f-4cb4-a193-28fa243396cb"
