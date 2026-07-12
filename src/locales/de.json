@@ -99,6 +99,7 @@
     "placeholder": "deine-domain.de",
     "save": "Speichern",
     "errorUnreachable": "Server nicht erreichbar. Bitte URL prüfen.",
+    "errorServerOutdated": "Server-Version {{server}} ist zu alt (mindestens {{min}} erforderlich). Bitte Server aktualisieren.",
     "serverGuide": "Anleitung: Eigenen Server einrichten →"
   },
   "settings": {

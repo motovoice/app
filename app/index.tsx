@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   View, Text, StyleSheet, TextInput,
   KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity,
-  ActivityIndicator, Animated, PanResponder, Image,
+  ActivityIndicator, Animated, PanResponder, Image, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
@@ -13,7 +13,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { LicensesModal } from '@/components/LicensesModal';
 import { ServerSetupModal } from '@/components/ServerSetupModal';
 import { storage, type LastChannel } from '@/services/storage';
-import { api } from '@/services/api';
+import { api, checkCompatibility } from '@/services/api';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -26,6 +26,8 @@ export default function HomeScreen() {
   const [lastChannel, setLastChannel]   = useState<LastChannel | null>(null);
   const [rejoining, setRejoining]       = useState(false);
   const [rejoinError, setRejoinError]   = useState(false);
+  const [compatBanner,  setCompatBanner]  = useState<string | null>(null);
+  const [serverBlocked, setServerBlocked] = useState(false);
 
   useEffect(() => {
     storage.getDisplayName().then(name => {
@@ -34,9 +36,20 @@ export default function HomeScreen() {
         setNameReady(true);
       }
     });
-    storage.getServerUrl().then(url => {
+    storage.getServerUrl().then(async url => {
       if (url) {
         api.setBaseUrl(url);
+        try {
+          const health = await api.checkHealth();
+          const compat = checkCompatibility(health);
+          if (!compat.compatible) {
+            const msg = t('setup.errorServerOutdated', { min: compat.minVersion, server: compat.serverVersion });
+            setCompatBanner(msg);
+            setServerBlocked(true);
+          }
+        } catch {
+          // ignore — connectivity issues are caught when user actually tries to create/join
+        }
       } else {
         setShowServerSetup(true);
       }
@@ -155,6 +168,14 @@ export default function HomeScreen() {
             <Text style={styles.settingsBtnIcon}>⚙️</Text>
           </TouchableOpacity>
 
+          {/* Version compatibility banner */}
+          {compatBanner && (
+            <Pressable style={styles.compatBanner} onPress={() => setCompatBanner(null)}>
+              <Text style={styles.compatBannerText}>{compatBanner}</Text>
+              <Text style={styles.compatBannerDismiss}>✕</Text>
+            </Pressable>
+          )}
+
           {/* Header */}
           <View style={styles.header}>
             <Image source={require('../assets/icon.png')} style={styles.logo} />
@@ -207,7 +228,7 @@ export default function HomeScreen() {
               label={t('home.createChannel')}
               onPress={() => router.push('/create')}
               variant="primary"
-              disabled={!nameReady}
+              disabled={!nameReady || serverBlocked}
             />
 
             <View style={styles.divider}>
@@ -220,7 +241,7 @@ export default function HomeScreen() {
               label={t('home.scanQrCode')}
               onPress={() => router.push('/scan')}
               variant="secondary"
-              disabled={!nameReady}
+              disabled={!nameReady || serverBlocked}
             />
           </View>
 
@@ -368,6 +389,27 @@ const styles = StyleSheet.create({
     fontSize:  FontSize.sm,
     color:     Colors.textMuted,
     marginTop: -Spacing.sm,
+  },
+
+  compatBanner: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    borderRadius:    Radius.md,
+    borderWidth:     1,
+    borderColor:     Colors.warning,
+    padding:         Spacing.md,
+    gap:             Spacing.sm,
+  },
+  compatBannerText: {
+    flex:      1,
+    fontSize:  FontSize.xs,
+    color:     Colors.warning,
+    lineHeight: 18,
+  },
+  compatBannerDismiss: {
+    fontSize: FontSize.sm,
+    color:    Colors.warning,
   },
 
   recentCard: {

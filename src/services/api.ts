@@ -1,6 +1,11 @@
 // ─── MotoVoice API Service ────────────────────────────────────
 
+import Constants from 'expo-constants';
+
 export const DEFAULT_API_BASE = '';
+
+export const MIN_SERVER_VERSION: string =
+  Constants.expoConfig?.extra?.minServerVersion;
 
 let _apiBase = DEFAULT_API_BASE;
 
@@ -19,6 +24,31 @@ export interface JoinRoomResponse {
   livekitToken:  string;
   livekitUrl:    string;
   hostIdentity?: string;
+}
+
+export interface HealthResponse {
+  status:   string;
+  version?: string;
+}
+
+export type CompatResult =
+  | { compatible: true;  serverVersion: string }
+  | { compatible: false; serverVersion: string; minVersion: string };
+
+function semverCompare(a: string, b: string): number {
+  const parse = (v: string) => v.split('.').map(n => parseInt(n, 10) || 0);
+  const [a1, a2, a3] = parse(a);
+  const [b1, b2, b3] = parse(b);
+  return a1 !== b1 ? a1 - b1 : a2 !== b2 ? a2 - b2 : a3 - b3;
+}
+
+export function checkCompatibility(health: HealthResponse): CompatResult {
+  const sv = health.version;
+  if (!sv) return { compatible: true, serverVersion: '?' };
+  if (semverCompare(sv, MIN_SERVER_VERSION) < 0) {
+    return { compatible: false, serverVersion: sv, minVersion: MIN_SERVER_VERSION };
+  }
+  return { compatible: true, serverVersion: sv };
 }
 
 export interface RoomStatus {
@@ -66,6 +96,15 @@ async function request<T>(
 export const api = {
   getBaseUrl: () => _apiBase,
   setBaseUrl: (url: string) => { _apiBase = url.trim().replace(/\/$/, '') || DEFAULT_API_BASE; },
+
+  checkHealth: async (baseUrl?: string): Promise<HealthResponse> => {
+    const url = (baseUrl ?? _apiBase).replace(/\/$/, '');
+    const res  = await fetch(`${url}/health`, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error('unreachable');
+    const json = await res.json().catch(() => ({}));
+    if (json?.status !== 'ok') throw new Error('unreachable');
+    return json as HealthResponse;
+  },
 
   /** Create a new voice channel */
   createRoom: (displayName: string) =>
