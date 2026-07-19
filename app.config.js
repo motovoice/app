@@ -55,6 +55,7 @@ export default {
     },
     plugins: [
       ["expo-adi-registration", { token: process.env.ADI_TOKEN }],
+      "./livekit-setup.plugin",
       "./android-manifest.plugin",
       "expo-router",
       [

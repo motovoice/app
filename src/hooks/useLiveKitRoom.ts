@@ -246,7 +246,28 @@ export function useLiveKitRoom({
 
     const configureAudio = async () => {
       await AudioSession.startAudioSession();
-      debugLog.log("info", "Audio session started")
+      await AudioSession.configureAudio({
+        android: {
+          audioTypeOptions: {
+            manageAudioFocus: true,
+            audioMode: 'inCommunication',
+            audioFocusMode: 'gainTransientMayDuck',
+            audioStreamType: 'voiceCall',
+            audioAttributesUsageType: 'voiceCommunication',
+            audioAttributesContentType: 'speech',
+          },
+        },
+        ios: {
+          defaultOutput: 'speaker',
+        },
+      });
+      // iOS: mix with other audio sources instead of ducking them
+      await AudioSession.setAppleAudioConfiguration({
+        audioCategory: 'playAndRecord',
+        audioCategoryOptions: ['mixWithOthers', 'allowBluetooth', 'allowBluetoothA2DP'],
+        audioMode: 'voiceChat',
+      });
+      debugLog.log("info", "Audio session started");
     };
 
     const connect = async () => {
