@@ -14,6 +14,7 @@ interface DebugLogModalProps {
 }
 
 function colorForLine(line: string): string {
+  if (/\[fatal\]/i.test(line)) return Colors.danger;
   if (/\[error\]/i.test(line)) return Colors.danger;
   if (/\[warn\]/i.test(line)) return Colors.warning;
   if (/\[debug\]/i.test(line)) return Colors.textMuted;

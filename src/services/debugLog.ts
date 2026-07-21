@@ -3,7 +3,7 @@ import { File, Paths } from 'expo-file-system';
 const logFile = new File(Paths.document, 'debug.log');
 const MAX_LOG_CHARS = 500_000; // trim oldest entries once the file grows past this
 
-const LEVEL_ORDER = ['debug', 'info', 'warn', 'error'];
+const LEVEL_ORDER = ['debug', 'info', 'warn', 'error', 'fatal'];
 let _minLevel = __DEV__ ? 'debug' : 'info';
 
 let writeQueue: Promise<void> = Promise.resolve();

@@ -28,4 +28,13 @@ LogBox.ignoreAllLogs(true);
 
 require("./src/i18n");
 
+const { debugLog } = require('./src/services/debugLog');
+const originalHandler = ErrorUtils.getGlobalHandler();
+ErrorUtils.setGlobalHandler((error, isFatal) => {
+  debugLog.log(isFatal ? 'fatal' : 'error', error?.message ?? error, {
+    stack: error?.stack,
+  });
+  originalHandler?.(error, isFatal);
+});
+
 require('expo-router/entry');
