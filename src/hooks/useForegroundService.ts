@@ -77,8 +77,9 @@ export function useForegroundService(roomId: string, connectionState: Connection
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
           PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
         ]);
-        const audioGranted = results[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === PermissionsAndroid.RESULTS.GRANTED;
-        if (!audioGranted || notify_permission.authorizationStatus === AuthorizationStatus.DENIED) {
+        const granted = results[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] && 
+        results[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] === PermissionsAndroid.RESULTS.GRANTED;
+        if (!granted || notify_permission.authorizationStatus === AuthorizationStatus.DENIED) {
           setPermissionDenied(true);
           return;
         }

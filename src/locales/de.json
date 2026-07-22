@@ -44,7 +44,7 @@
     "closedTitle": "Channel beendet",
     "closedMessage": "Der Host hat den Channel geschlossen.",
     "permissionDeniedTitle": "Berechtigung fehlt",
-    "permissionDeniedMessage": "Benachrichtigungs und Mikrofon-Zugriff ist erforderlich. Bitte erlaube es in den App-Einstellungen und versuche es erneut."
+    "permissionDeniedMessage": "Bitte erlaube die benötigten Berechtigungen in den App-Einstellungen und versuche es erneut.\n\nBenachrichtigungen: Benötigt für den Foreground Service um MotoVoice aktiv zu halten\n\nMikrofon: Benötigt für den Sprachchat\n\nGeräte in der Nähe: Benötigt für die Nutzung von Bluetooth Headsets"
   },
   "scan": {
     "invalidQrCode": "QR-Code ungültig",
