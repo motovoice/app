@@ -125,7 +125,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: async () => {
               disconnect();
-              try { await api.deleteRoom(roomId, deleteSecret ?? ''); } catch {}
+              api.deleteRoom(roomId, deleteSecret ?? '').catch(() => {});
               router.replace('/');
             },
           },
