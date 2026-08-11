@@ -1,5 +1,6 @@
 import i18n from 'i18next';
-import { initReactI18next, NativeModules, Platform } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
+import { NativeModules, Platform } from 'react-native';
 import de from './locales/de.json';
 import en from './locales/en.json';
 import { storage } from './services/storage';
