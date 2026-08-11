@@ -25,6 +25,7 @@ export default function JoinScreen() {
 
       try {
         const result = await api.joinRoom(roomId, displayName);
+        if (!result) throw new Error('no result');
         router.replace({
           pathname: '/channel',
           params: {
