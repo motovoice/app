@@ -5,10 +5,20 @@ const AUDIO_SETTINGS_KEY  = 'motovoice_audio_settings';
 const LANGUAGE_KEY        = 'motovoice_language';
 const SERVER_URL_KEY      = 'motovoice_server_url';
 const SERVER_PASSWORD_KEY = 'motovoice_server_password';
+const DEVICE_ID_KEY       = 'motovoice_device_id';
 const LAST_CHANNEL_KEY    = 'motovoice_last_channel';
 const LOG_LEVEL_KEY       = 'motovoice_log_level';
 
 export const DEFAULT_LOG_LEVEL = __DEV__ ? 'debug' : 'info';
+
+// Anonymous, non-cryptographic UUID v4 — only used to group stats server-side.
+function generateDeviceId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 export interface LastChannel {
   roomId:      string;
@@ -106,5 +116,13 @@ export const storage = {
     } else {
       await SecureStore.deleteItemAsync(SERVER_PASSWORD_KEY);
     }
+  },
+
+  getOrCreateDeviceId: async (): Promise<string> => {
+    const existing = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+    if (existing) return existing;
+    const id = generateDeviceId();
+    await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
+    return id;
   },
 };
