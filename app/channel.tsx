@@ -15,7 +15,7 @@ import { useReconnectSound } from '@/hooks/useReconnectSound';
 import { PTTButton } from '@/components/PTTButton';
 import { ParticipantCard } from '@/components/ParticipantCard';
 import { ConnectionBadge } from '@/components/ConnectionBadge';
-import { api } from '@/services/api';
+import { api, ApiError } from '@/services/api';
 import { storage } from '@/services/storage';
 import { useTranslation } from 'react-i18next';
 
@@ -104,6 +104,12 @@ export default function ChannelScreen() {
     });
   };
 
+  const reportAuthError = (e: any) => {
+    if (e instanceof ApiError && e.status === 401) {
+      Alert.alert(t('generic.error'), t('setup.wrongPassword'));
+    }
+  };
+
   const handleLeave = () => {
     if (isHost_) {
       Alert.alert(
@@ -116,7 +122,7 @@ export default function ChannelScreen() {
             style: 'default',
             onPress: () => {
               disconnect();
-              api.leaveRoom(roomId, localDisplayName).catch(() => {});
+              api.leaveRoom(roomId, localDisplayName).catch(reportAuthError);
               router.replace('/');
             },
           },
@@ -125,7 +131,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: async () => {
               disconnect();
-              api.deleteRoom(roomId, deleteSecret ?? '').catch(() => {});
+              api.deleteRoom(roomId, deleteSecret ?? '').catch(reportAuthError);
               router.replace('/');
             },
           },
@@ -142,7 +148,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: () => {
               disconnect();
-              api.leaveRoom(roomId, localDisplayName).catch(() => {});
+              api.leaveRoom(roomId, localDisplayName).catch(reportAuthError);
               router.replace('/');
             },
           },

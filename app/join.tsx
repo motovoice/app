@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Colors } from '@/utils/theme';
-import { api } from '@/services/api';
+import { api, ApiError } from '@/services/api';
 import { storage } from '@/services/storage';
 
 export default function JoinScreen() {
+  const { t } = useTranslation();
   const { room: roomId } = useLocalSearchParams<{ room: string }>();
 
   useEffect(() => {
@@ -33,7 +35,10 @@ export default function JoinScreen() {
             hostIdentity: result.hostIdentity ?? '',
           },
         });
-      } catch {
+      } catch (e: any) {
+        if (e instanceof ApiError && e.status === 401) {
+          Alert.alert(t('generic.error'), t('setup.wrongPassword'));
+        }
         router.replace('/');
       }
     };

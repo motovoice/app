@@ -13,7 +13,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { LicensesModal } from '@/components/LicensesModal';
 import { ServerSetupModal } from '@/components/ServerSetupModal';
 import { storage, type LastChannel } from '@/services/storage';
-import { api, checkCompatibility } from '@/services/api';
+import { api, checkCompatibility, ApiError } from '@/services/api';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export default function HomeScreen() {
   const [showServerSetup, setShowServerSetup] = useState(false);
   const [lastChannel, setLastChannel]   = useState<LastChannel | null>(null);
   const [rejoining, setRejoining]       = useState(false);
-  const [rejoinError, setRejoinError]   = useState(false);
+  const [rejoinError, setRejoinError]   = useState<string | null>(null);
   const [compatBanner,  setCompatBanner]  = useState<string | null>(null);
   const [serverBlocked, setServerBlocked] = useState(false);
 
@@ -39,6 +39,8 @@ export default function HomeScreen() {
     storage.getServerUrl().then(async url => {
       if (url) {
         api.setBaseUrl(url);
+        const password = await storage.getServerPassword();
+        if (password) api.setAuthPassword(password);
         try {
           const health = await api.checkHealth();
           const compat = checkCompatibility(health);
@@ -59,7 +61,7 @@ export default function HomeScreen() {
   // Reload last channel whenever this screen comes into focus
   useFocusEffect(useCallback(() => {
     storage.getLastChannel().then(setLastChannel);
-    setRejoinError(false);
+    setRejoinError(null);
   }, []));
 
   // Swipe-to-dismiss animation
@@ -70,7 +72,7 @@ export default function HomeScreen() {
   const clearCard = async () => {
     await storage.clearLastChannel();
     setLastChannel(null);
-    setRejoinError(false);
+    setRejoinError(null);
   };
 
   const panResponder = useRef(
@@ -115,7 +117,7 @@ export default function HomeScreen() {
   const handleRejoin = async () => {
     if (!lastChannel || rejoining) return;
     setRejoining(true);
-    setRejoinError(false);
+    setRejoinError(null);
     try {
       const status = await api.getRoomStatus(lastChannel.roomId);
       if (!status?.is_active) throw new Error('inactive');
@@ -133,10 +135,10 @@ export default function HomeScreen() {
           deleteSecret: lastChannel.deleteSecret ?? '',
         },
       });
-    } catch {
-      setRejoinError(true);
+    } catch (e: any) {
+      setRejoinError(e instanceof ApiError && e.status === 401 ? t('setup.wrongPassword') : t('home.recentGone'));
       // Auto-clear the error after 3 s
-      setTimeout(() => setRejoinError(false), 3000);
+      setTimeout(() => setRejoinError(null), 3000);
     } finally {
       setRejoining(false);
     }
@@ -274,7 +276,7 @@ export default function HomeScreen() {
                     {formatAgo(lastChannel.joinedAt)}
                   </Text>
                   {rejoinError && (
-                    <Text style={styles.recentError}>{t('home.recentGone')}</Text>
+                    <Text style={styles.recentError}>{rejoinError}</Text>
                   )}
                 </View>
                 <View style={styles.recentRight}>
