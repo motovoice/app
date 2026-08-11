@@ -9,6 +9,7 @@ export const MIN_SERVER_VERSION: string =
 
 let _apiBase = DEFAULT_API_BASE;
 let _authPassword: string | null = null;
+let _deviceId: string | null = null;
 
 export interface CreateRoomResponse {
   roomId:        string;
@@ -76,6 +77,7 @@ async function request<T>(
   const headers: Record<string, string> = {};
   if (options?.body) headers['Content-Type'] = 'application/json';
   if (_authPassword) headers['X-Server-Password'] = _authPassword;
+  if (_deviceId) headers['X-Device-Id'] = _deviceId;
   if (options?.headers) Object.assign(headers, options.headers);
 
   const method = options?.method ?? 'GET';
@@ -110,6 +112,8 @@ export const api = {
 
   getAuthPassword: () => _authPassword,
   setAuthPassword: (password: string | null) => { _authPassword = password || null; },
+
+  setDeviceId: (id: string) => { _deviceId = id; },
 
   checkHealth: async (baseUrl?: string): Promise<HealthResponse> => {
     const url = (baseUrl ?? _apiBase).replace(/\/$/, '');

@@ -7,6 +7,7 @@ import { storage } from '@/services/storage';
 // Apply saved server URL/password on startup (falls back to env default if not set)
 storage.getServerUrl().then(url => { if (url) api.setBaseUrl(url); });
 storage.getServerPassword().then(password => { if (password) api.setAuthPassword(password); });
+storage.getOrCreateDeviceId().then(id => api.setDeviceId(id));
 
 export default function RootLayout() {
   return (
