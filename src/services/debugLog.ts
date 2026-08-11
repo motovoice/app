@@ -12,6 +12,11 @@ function timestamp(): string {
   return new Date().toISOString();
 }
 
+// Strips server URLs (e.g. from LiveKit SDK connect logs) before they hit disk.
+function redact(text: string): string {
+  return text.replace(/(wss?|https?):\/\/\S+/gi, (_match, scheme) => `${scheme}://<redacted>`);
+}
+
 function appendLine(line: string) {
   writeQueue = writeQueue.then(async () => {
     try {
@@ -35,7 +40,9 @@ export const debugLog = {
 
   log(level: string, message: string, context?: object) {
     if (LEVEL_ORDER.indexOf(level) < LEVEL_ORDER.indexOf(_minLevel)) return;
-    appendLine(context ? `[${level}] ${message} ${JSON.stringify(context)}` : `[${level}] ${message}`);
+    const safeMessage = redact(message);
+    const safeContext = context ? redact(JSON.stringify(context)) : undefined;
+    appendLine(safeContext ? `[${level}] ${safeMessage} ${safeContext}` : `[${level}] ${safeMessage}`);
   },
 
   async read(): Promise<string> {
