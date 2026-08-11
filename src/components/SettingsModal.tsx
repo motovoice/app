@@ -24,6 +24,8 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
 
   const [audio, setAudio]             = useState<AudioSettings>(DEFAULT_AUDIO_SETTINGS);
   const [serverUrl, setServerUrl]     = useState('');
+  const [password, setPassword]             = useState('');
+  const [passwordRequired, setPasswordRequired] = useState(false);
   const [kbHeight, setKbHeight]       = useState(0);
   const [urlChecking, setUrlChecking] = useState(false);
   const [urlError, setUrlError]         = useState<string | null>(null);
@@ -47,6 +49,8 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
       const full = url ?? api.getBaseUrl();
       setServerUrl(full.replace(/^https?:\/\//, ''));
     });
+    storage.getServerPassword().then(pw => setPassword(pw ?? ''));
+    api.checkHealth().then(health => setPasswordRequired(health.authRequired === true)).catch(() => {});
     storage.getLogLevel().then(level => {
       setLogLevelState(level);
       applyLogLevel(level);
@@ -83,6 +87,13 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
       if (!res.ok || json?.status !== 'ok') throw new Error();
       await storage.setServerUrl(fullUrl);
       api.setBaseUrl(fullUrl);
+      const authRequired = json?.authRequired === true;
+      setPasswordRequired(authRequired);
+      if (!authRequired) {
+        setPassword('');
+        await storage.setServerPassword(null);
+        api.setAuthPassword(null);
+      }
     } catch {
       setUrlError(t('setup.errorUnreachable'));
       const stored = await storage.getServerUrl();
@@ -90,6 +101,11 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
     } finally {
       setUrlChecking(false);
     }
+  };
+
+  const handlePasswordBlur = async () => {
+    await storage.setServerPassword(password || null);
+    api.setAuthPassword(password || null);
   };
 
   const setLanguage = async (lang: string) => {
@@ -207,6 +223,24 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
                 </View>
                 {urlError && <Text style={s.urlErrorText}>{urlError}</Text>}
               </View>
+              {passwordRequired && (
+                <View style={s.urlRow}>
+                  <Text style={s.settingLabel}>{t('settings.serverPassword')}</Text>
+                  <View style={s.urlInputRow}>
+                    <TextInput
+                      style={s.urlInput}
+                      value={password}
+                      onChangeText={setPassword}
+                      onBlur={handlePasswordBlur}
+                      placeholder={t('settings.serverPasswordPlaceholder')}
+                      placeholderTextColor={Colors.textMuted}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+              )}
             </View>
 
             {/* Debug */}

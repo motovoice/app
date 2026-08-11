@@ -4,6 +4,7 @@ const DISPLAY_NAME_KEY    = 'motovoice_display_name';
 const AUDIO_SETTINGS_KEY  = 'motovoice_audio_settings';
 const LANGUAGE_KEY        = 'motovoice_language';
 const SERVER_URL_KEY      = 'motovoice_server_url';
+const SERVER_PASSWORD_KEY = 'motovoice_server_password';
 const LAST_CHANNEL_KEY    = 'motovoice_last_channel';
 const LOG_LEVEL_KEY       = 'motovoice_log_level';
 
@@ -92,6 +93,18 @@ export const storage = {
       await SecureStore.setItemAsync(SERVER_URL_KEY, url.trim().replace(/\/$/, ''));
     } else {
       await SecureStore.deleteItemAsync(SERVER_URL_KEY);
+    }
+  },
+
+  getServerPassword: async (): Promise<string | null> => {
+    return SecureStore.getItemAsync(SERVER_PASSWORD_KEY);
+  },
+
+  setServerPassword: async (password: string | null): Promise<void> => {
+    if (password) {
+      await SecureStore.setItemAsync(SERVER_PASSWORD_KEY, password);
+    } else {
+      await SecureStore.deleteItemAsync(SERVER_PASSWORD_KEY);
     }
   },
 };

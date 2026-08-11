@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
 import { Button } from '@/components/Button';
-import { api, type CreateRoomResponse } from '@/services/api';
+import { api, ApiError, type CreateRoomResponse } from '@/services/api';
 import { storage } from '@/services/storage';
 
 export default function CreateScreen() {
@@ -25,7 +25,7 @@ export default function CreateScreen() {
         const data = await api.createRoom(name ?? 'Host');
         setRoom(data);
       } catch (e: any) {
-        setError(e?.message ?? t('create.channelCreateError'));
+        setError(e instanceof ApiError && e.status === 401 ? t('setup.wrongPassword') : e?.message ?? t('create.channelCreateError'));
       } finally {
         setLoading(false);
       }

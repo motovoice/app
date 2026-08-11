@@ -8,6 +8,7 @@ export const MIN_SERVER_VERSION: string =
   Constants.expoConfig?.extra?.minServerVersion;
 
 let _apiBase = DEFAULT_API_BASE;
+let _authPassword: string | null = null;
 
 export interface CreateRoomResponse {
   roomId:        string;
@@ -27,8 +28,9 @@ export interface JoinRoomResponse {
 }
 
 export interface HealthResponse {
-  status:   string;
-  version?: string;
+  status:         string;
+  version?:       string;
+  authRequired?:  boolean;
 }
 
 export type CompatResult =
@@ -59,12 +61,21 @@ export interface RoomStatus {
   is_active:         boolean;
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function request<T>(
   path: string,
   options?: RequestInit
 ): Promise<T | null> {
   const headers: Record<string, string> = {};
   if (options?.body) headers['Content-Type'] = 'application/json';
+  if (_authPassword) headers['X-Server-Password'] = _authPassword;
   if (options?.headers) Object.assign(headers, options.headers);
 
   const method = options?.method ?? 'GET';
@@ -79,14 +90,14 @@ async function request<T>(
       const body = await res.json().catch(() => ({}));
       const err = body?.error ?? res.status;
       debugLog.log("warn", `${method} ${path} → ${err}`);
-      throw new Error(err);
+      throw new ApiError(res.status, err);
     }
 
     debugLog.log("info", `${method} ${path} → ${res.status}`);
     if (res.status === 204 || res.headers.get('content-length') === '0') return null;
     return res.json();
   } catch (e: any) {
-    if (!e.message?.startsWith('API')) {
+    if (!(e instanceof ApiError)) {
       debugLog.log("error", `${method} ${path} → ${e.message ?? 'network error'}`);
     }
     throw e;
@@ -96,6 +107,9 @@ async function request<T>(
 export const api = {
   getBaseUrl: () => _apiBase,
   setBaseUrl: (url: string) => { _apiBase = url.trim().replace(/\/$/, '') || DEFAULT_API_BASE; },
+
+  getAuthPassword: () => _authPassword,
+  setAuthPassword: (password: string | null) => { _authPassword = password || null; },
 
   checkHealth: async (baseUrl?: string): Promise<HealthResponse> => {
     const url = (baseUrl ?? _apiBase).replace(/\/$/, '');

@@ -15,12 +15,14 @@ interface ServerSetupModalProps {
 
 export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
   const { t } = useTranslation();
-  const [host,    setHost]    = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState<string | null>(null);
+  const [host,          setHost]          = useState('');
+  const [password,      setPassword]      = useState('');
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState<string | null>(null);
 
   const trimmedHost = host.trim().replace(/\/$/, '');
-  const canSave     = trimmedHost.length > 0 && !loading;
+  const canSave     = trimmedHost.length > 0 && !loading && (!needsPassword || password.length > 0);
   const fullUrl     = `https://${trimmedHost}`;
 
   const handleSave = async () => {
@@ -34,8 +36,15 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
         setError(t('setup.errorServerOutdated', { min: compat.minVersion, server: compat.serverVersion }));
         return;
       }
+      if (health.authRequired && !password) {
+        setNeedsPassword(true);
+        setError(t('setup.passwordRequired'));
+        return;
+      }
       await storage.setServerUrl(fullUrl);
+      await storage.setServerPassword(health.authRequired ? password : null);
       api.setBaseUrl(fullUrl);
+      api.setAuthPassword(health.authRequired ? password : null);
       onSaved();
     } catch {
       setError(t('setup.errorUnreachable'));
@@ -79,6 +88,26 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
               />
             </View>
           </View>
+
+          {needsPassword && (
+            <View style={s.field}>
+              <Text style={s.label}>{t('setup.passwordLabel')}</Text>
+              <View style={s.inputRow}>
+                <TextInput
+                  style={s.input}
+                  value={password}
+                  onChangeText={text => { setPassword(text); setError(null); }}
+                  placeholder={t('setup.passwordPlaceholder')}
+                  placeholderTextColor={Colors.textMuted}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  secureTextEntry
+                  onSubmitEditing={handleSave}
+                  returnKeyType="done"
+                />
+              </View>
+            </View>
+          )}
 
           {error && <Text style={s.errorText}>{error}</Text>}
 

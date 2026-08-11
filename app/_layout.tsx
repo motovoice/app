@@ -4,8 +4,9 @@ import { Colors } from '@/utils/theme';
 import { api } from '@/services/api';
 import { storage } from '@/services/storage';
 
-// Apply saved server URL on startup (falls back to env default if not set)
+// Apply saved server URL/password on startup (falls back to env default if not set)
 storage.getServerUrl().then(url => { if (url) api.setBaseUrl(url); });
+storage.getServerPassword().then(password => { if (password) api.setAuthPassword(password); });
 
 export default function RootLayout() {
   return (

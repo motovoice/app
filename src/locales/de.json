@@ -3,7 +3,8 @@
     "back": "Zurück",
     "cancel": "Abbrechen",
     "leave": "Verlassen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "error": "Fehler"
   },
   "home": {
     "title": "MotoVoice",
@@ -100,7 +101,11 @@
     "save": "Speichern",
     "errorUnreachable": "Server nicht erreichbar. Bitte URL prüfen.",
     "errorServerOutdated": "Server-Version {{server}} ist zu alt (mindestens {{min}} erforderlich). Bitte Server aktualisieren.",
-    "serverGuide": "Anleitung: Eigenen Server einrichten →"
+    "serverGuide": "Anleitung: Eigenen Server einrichten →",
+    "passwordLabel": "Server-Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "passwordRequired": "Dieser Server erfordert ein Passwort.",
+    "wrongPassword": "Falsches Server-Passwort. Bitte in den Einstellungen prüfen."
   },
   "settings": {
     "title": "Einstellungen",
@@ -115,6 +120,8 @@
     "serverUrl": "Server-URL",
     "serverUrlPlaceholder": "deine-domain.de",
     "serverUrlReset": "Standard wiederherstellen",
+    "serverPassword": "Server-Passwort",
+    "serverPasswordPlaceholder": "Passwort eingeben",
     "sectionAbout": "Über die App",
     "openSourceLicenses": "Open-Source-Lizenzen",
     "version": "Version {{version}}",

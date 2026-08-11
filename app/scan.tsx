@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, CameraView } from 'expo-camera';
 import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
-import { api } from '@/services/api';
+import { api, ApiError } from '@/services/api';
 import { storage } from '@/services/storage';
 import { useTranslation } from 'react-i18next';
 
@@ -55,7 +55,7 @@ export default function ScanScreen() {
         },
       });
     } catch (e: any) {
-      setError(e?.message ?? t('scan.channelNotFound'));
+      setError(e instanceof ApiError && e.status === 401 ? t('setup.wrongPassword') : e?.message ?? t('scan.channelNotFound'));
       setScanned(false);
       setJoining(false);
       handlingRef.current = false;

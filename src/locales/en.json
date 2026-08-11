@@ -3,7 +3,8 @@
     "back": "Back",
     "cancel": "Cancel",
     "leave": "Leave",
-    "close": "Close"
+    "close": "Close",
+    "error": "Error"
   },
   "home": {
     "title": "MotoVoice",
@@ -100,7 +101,11 @@
     "save": "Save",
     "errorUnreachable": "Server not reachable. Please check the URL.",
     "errorServerOutdated": "Server version {{server}} is too old (requires ≥ {{min}}). Please update the server.",
-    "serverGuide": "Guide: Set up your own server →"
+    "serverGuide": "Guide: Set up your own server →",
+    "passwordLabel": "Server Password",
+    "passwordPlaceholder": "Enter password",
+    "passwordRequired": "This server requires a password.",
+    "wrongPassword": "Wrong server password. Please check it in Settings."
   },
   "settings": {
     "title": "Settings",
@@ -115,6 +120,8 @@
     "serverUrl": "Server URL",
     "serverUrlPlaceholder": "your-domain.com",
     "serverUrlReset": "Restore default",
+    "serverPassword": "Server Password",
+    "serverPasswordPlaceholder": "Enter password",
     "sectionAbout": "About",
     "openSourceLicenses": "Open Source Licenses",
     "version": "Version {{version}}",
