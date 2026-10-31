@@ -54,6 +54,31 @@ export function checkCompatibility(health: HealthResponse): CompatResult {
   return { compatible: true, serverVersion: sv };
 }
 
+export interface InviteInfo {
+  roomId: string;
+  server: string | null;
+}
+
+/** Builds the motovoice:// deep-link payload (QR code + join link), embedding the
+ *  room's server (default: the configured one) so recipients on a different server can still join. */
+export function buildInviteUri(roomId: string, server: string = _apiBase): string {
+  return `motovoice://join?room=${roomId}&server=${encodeURIComponent(server)}`;
+}
+
+/** Parses a scanned/opened motovoice:// invite URI. Returns null if it's not a valid invite. */
+export function parseInviteUri(data: string): InviteInfo | null {
+  try {
+    const url = new URL(data);
+    if (url.protocol !== 'motovoice:') return null;
+    const roomId = url.searchParams.get('room');
+    if (!roomId) return null;
+    const server = url.searchParams.get('server');
+    return { roomId, server: server ? server.trim().replace(/\/$/, '') : null };
+  } catch {
+    return null;
+  }
+}
+
 export interface RoomStatus {
   id:                string;
   created_at:        string;
@@ -72,11 +97,15 @@ export class ApiError extends Error {
 
 async function request<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit,
+  server?: string
 ): Promise<T | null> {
+  // `server` is a room's server from an invite. It applies to this request only, and the
+  // configured server's password must never be sent to a different one.
+  const base = server || _apiBase;
   const headers: Record<string, string> = {};
   if (options?.body) headers['Content-Type'] = 'application/json';
-  if (_authPassword) headers['X-Server-Password'] = _authPassword;
+  if (_authPassword && base === _apiBase) headers['X-Server-Password'] = _authPassword;
   if (_deviceId) headers['X-Device-Id'] = _deviceId;
   if (options?.headers) Object.assign(headers, options.headers);
 
@@ -86,7 +115,7 @@ async function request<T>(
   const { debugLog } = await import('@/services/debugLog');
 
   try {
-    const res = await fetch(`${_apiBase}${path}`, { ...rest, headers });
+    const res = await fetch(`${base}${path}`, { ...rest, headers });
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -132,27 +161,27 @@ export const api = {
     }),
 
   /** Join a room via scanned QR code */
-  joinRoom: (roomId: string, displayName: string) =>
+  joinRoom: (roomId: string, displayName: string, server?: string) =>
     request<JoinRoomResponse>(`/api/rooms/${roomId}/join`, {
       method: 'POST',
       body: JSON.stringify({ displayName }),
-    }),
+    }, server),
 
   /** leave a room */
-  leaveRoom: (roomId: string, displayName: string) =>
+  leaveRoom: (roomId: string, displayName: string, server?: string) =>
     request<null>(`/api/rooms/${roomId}/leave`, {
       method: 'POST',
       body: JSON.stringify({ displayName }),
-    }),
+    }, server),
 
   /** Fetch room status */
-  getRoomStatus: (roomId: string) =>
-    request<RoomStatus>(`/api/rooms/${roomId}`),
+  getRoomStatus: (roomId: string, server?: string) =>
+    request<RoomStatus>(`/api/rooms/${roomId}`, undefined, server),
 
   /** Manually close the room (host only) */
-  deleteRoom: (roomId: string, deleteSecret: string) =>
+  deleteRoom: (roomId: string, deleteSecret: string, server?: string) =>
     request<void>(`/api/rooms/${roomId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${deleteSecret}` },
-    }),
+    }, server),
 };

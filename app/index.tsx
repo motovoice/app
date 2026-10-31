@@ -52,7 +52,7 @@ export default function HomeScreen() {
         } catch {
           // ignore — connectivity issues are caught when user actually tries to create/join
         }
-      } else {
+      } else if (!(await storage.getServerSetupSkipped())) {
         setShowServerSetup(true);
       }
     });
@@ -119,15 +119,16 @@ export default function HomeScreen() {
     setRejoining(true);
     setRejoinError(null);
     try {
-      const status = await api.getRoomStatus(lastChannel.roomId);
+      const status = await api.getRoomStatus(lastChannel.roomId, lastChannel.server);
       if (!status?.is_active) throw new Error('inactive');
       const name = await storage.getDisplayName();
-      const result = await api.joinRoom(lastChannel.roomId, name ?? 'Gast');
+      const result = await api.joinRoom(lastChannel.roomId, name ?? 'Gast', lastChannel.server);
       if (!result) throw new Error('no result');
       router.push({
         pathname: '/channel',
         params: {
           roomId:       result.roomId,
+          server:       lastChannel.server ?? '',
           livekitToken: result.livekitToken,
           livekitUrl:   result.livekitUrl,
           isHost:       lastChannel.isHost ? '1' : '0',
@@ -228,7 +229,7 @@ export default function HomeScreen() {
           <View style={styles.actions}>
             <Button
               label={t('home.createChannel')}
-              onPress={() => router.push('/create')}
+              onPress={() => api.getBaseUrl() ? router.push('/create') : setShowServerSetup(true)}
               variant="primary"
               disabled={!nameReady || serverBlocked}
             />
@@ -296,7 +297,11 @@ export default function HomeScreen() {
         onOpenLicenses={() => { setShowSettings(false); setShowLicenses(true); }}
       />
       <LicensesModal visible={showLicenses} onClose={() => setShowLicenses(false)} />
-      <ServerSetupModal visible={showServerSetup} onSaved={() => setShowServerSetup(false)} />
+      <ServerSetupModal
+        visible={showServerSetup}
+        onSaved={() => setShowServerSetup(false)}
+        onSkip={() => setShowServerSetup(false)}
+      />
     </SafeAreaView>
   );
 }

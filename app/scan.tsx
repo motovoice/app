@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, CameraView } from 'expo-camera';
 import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
-import { api, ApiError } from '@/services/api';
+import { api, ApiError, checkCompatibility, parseInviteUri } from '@/services/api';
 import { storage } from '@/services/storage';
 import { useTranslation } from 'react-i18next';
 
@@ -22,32 +22,42 @@ export default function ScanScreen() {
     });
   }, []);
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
-    if (handlingRef.current) return;
-    handlingRef.current = true;
-    setScanned(true);
-    Vibration.vibrate(80);
+  const resetScanState = () => {
+    setScanned(false);
+    setJoining(false);
+    handlingRef.current = false;
+  };
 
-    // QR-Payload parsen: motovoice://join?room=<id>
+  const attemptJoin = async (roomId: string, server: string | null) => {
+    setJoining(true);
+    setError(null);
     try {
-      const url    = new URL(data);
-      const roomId = url.searchParams.get('room');
-
-      if (!roomId || url.protocol !== 'motovoice:') {
-        setError(t('scan.invalidQrCode'));
-        setScanned(false);
+      if (!server && !api.getBaseUrl()) {
+        setError(t('scan.noServer'));
+        resetScanState();
         return;
       }
 
-      setJoining(true);
+      // Invite points to a different server: use it for this channel only, settings stay untouched.
+      if (server && server !== api.getBaseUrl()) {
+        const health = await api.checkHealth(server);
+        const compat = checkCompatibility(health);
+        if (!compat.compatible) {
+          setError(t('setup.errorServerOutdated', { min: compat.minVersion, server: compat.serverVersion }));
+          resetScanState();
+          return;
+        }
+      }
+
       const displayName = await storage.getDisplayName();
-      const result = await api.joinRoom(roomId, displayName ?? 'Gast');
+      const result = await api.joinRoom(roomId, displayName ?? 'Gast', server ?? undefined);
       if (!result) throw new Error(t('scan.channelNotFound'));
 
       router.replace({
         pathname: '/channel',
         params: {
           roomId:       result.roomId,
+          server:       server ?? '',
           livekitToken: result.livekitToken,
           livekitUrl:   result.livekitUrl,
           isHost:       '0',
@@ -56,10 +66,24 @@ export default function ScanScreen() {
       });
     } catch (e: any) {
       setError(e instanceof ApiError && e.status === 401 ? t('setup.wrongPassword') : e?.message ?? t('scan.channelNotFound'));
-      setScanned(false);
-      setJoining(false);
-      handlingRef.current = false;
+      resetScanState();
     }
+  };
+
+  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+    if (handlingRef.current) return;
+    handlingRef.current = true;
+    setScanned(true);
+    Vibration.vibrate(80);
+
+    const invite = parseInviteUri(data);
+    if (!invite) {
+      setError(t('scan.invalidQrCode'));
+      resetScanState();
+      return;
+    }
+
+    await attemptJoin(invite.roomId, invite.server);
   };
 
   if (hasPermission === null) {

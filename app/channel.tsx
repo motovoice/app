@@ -15,7 +15,7 @@ import { useReconnectSound } from '@/hooks/useReconnectSound';
 import { PTTButton } from '@/components/PTTButton';
 import { ParticipantCard } from '@/components/ParticipantCard';
 import { ConnectionBadge } from '@/components/ConnectionBadge';
-import { api, ApiError } from '@/services/api';
+import { api, ApiError, buildInviteUri } from '@/services/api';
 import { storage } from '@/services/storage';
 import { useTranslation } from 'react-i18next';
 
@@ -23,15 +23,18 @@ export default function ChannelScreen() {
   const { t, i18n } = useTranslation();
   useKeepAwake();
 
-  const { roomId, livekitToken, livekitUrl, isHost, qrPayload, hostIdentity, deleteSecret } = useLocalSearchParams<{
+  const { roomId, server, livekitToken, livekitUrl, isHost, hostIdentity, deleteSecret } = useLocalSearchParams<{
     roomId:       string;
+    server:       string;
     livekitToken: string;
     livekitUrl:   string;
     isHost:       string;
-    qrPayload:    string;
     hostIdentity: string;
     deleteSecret:  string;
   }>();
+
+  // The room's server: from the invite, otherwise the configured one.
+  const roomServer = server || api.getBaseUrl();
 
   const [showQR, setShowQR]                         = useState(false);
   const [localDisplayName, setLocalDisplayName]     = useState<string>('');
@@ -51,6 +54,7 @@ export default function ChannelScreen() {
     if (roomId) {
       storage.setLastChannel({
         roomId,
+        server: roomServer,
         isHost:      isHost === '1',
         joinedAt:    new Date().toISOString(),
         deleteSecret: deleteSecret || undefined,
@@ -94,10 +98,10 @@ export default function ChannelScreen() {
     );
   }, [permissionDenied]);
 
-  const qrValue     = qrPayload ?? `motovoice://join?room=${roomId}`;
+  const qrValue     = buildInviteUri(roomId ?? '', roomServer);
 
   const shareLink = async () => {
-    const shareUrl = `${api.getBaseUrl()}/join/${roomId}`;
+    const shareUrl = `${roomServer}/join/${roomId}`;
     await Share.share({
       message: t('create.sharingJoinChannel') + `\n${shareUrl}`,
       title:   t('create.sharingJoinChannelTitle'),
@@ -122,7 +126,7 @@ export default function ChannelScreen() {
             style: 'default',
             onPress: () => {
               disconnect();
-              api.leaveRoom(roomId, localDisplayName).catch(reportAuthError);
+              api.leaveRoom(roomId, localDisplayName, roomServer).catch(reportAuthError);
               router.replace('/');
             },
           },
@@ -131,7 +135,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: async () => {
               disconnect();
-              api.deleteRoom(roomId, deleteSecret ?? '').catch(reportAuthError);
+              api.deleteRoom(roomId, deleteSecret ?? '', roomServer).catch(reportAuthError);
               router.replace('/');
             },
           },
@@ -148,7 +152,7 @@ export default function ChannelScreen() {
             style: 'destructive',
             onPress: () => {
               disconnect();
-              api.leaveRoom(roomId, localDisplayName).catch(reportAuthError);
+              api.leaveRoom(roomId, localDisplayName, roomServer).catch(reportAuthError);
               router.replace('/');
             },
           },

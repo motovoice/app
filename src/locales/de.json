@@ -49,6 +49,7 @@
   },
   "scan": {
     "invalidQrCode": "QR-Code ungültig",
+    "noServer": "Diese Einladung enthält keinen Server. Bitte richte zuerst einen Server ein oder fordere eine neue Einladung an.",
     "channelNotFound": "Channel nicht gefunden oder abgelaufen",
     "cameraPermissionRequesting": "Kamera-Berechtigung wird angefragt...",
     "cameraPermissionMissing": "Kamera-Berechtigung fehlt. Bitte in den App-Einstellungen aktivieren.",
@@ -95,7 +96,7 @@
   },
   "setup": {
     "title": "Server einrichten",
-    "subtitle": "Gib die URL deines MotoVoice-Servers ein, um die App zu nutzen.",
+    "subtitle": "Gib die URL deines MotoVoice-Servers ein, um Channels zu erstellen. Zum Beitreten per Einladung brauchst du keinen eigenen Server.",
     "urlLabel": "Server-URL",
     "placeholder": "deine-domain.de",
     "save": "Speichern",
@@ -105,6 +106,8 @@
     "passwordLabel": "Server-Passwort",
     "passwordPlaceholder": "Passwort eingeben",
     "passwordRequired": "Dieser Server erfordert ein Passwort.",
+    "passwordSetupHint": "Dieser Server erfordert ein Passwort zum Erstellen von Channels. Wenn du nur beitreten möchtest, kannst du die Einrichtung überspringen.",
+    "skip": "Überspringen, ich möchte nur beitreten",
     "wrongPassword": "Falsches Server-Passwort. Bitte in den Einstellungen prüfen."
   },
   "settings": {

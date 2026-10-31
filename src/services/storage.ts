@@ -5,6 +5,7 @@ const AUDIO_SETTINGS_KEY  = 'motovoice_audio_settings';
 const LANGUAGE_KEY        = 'motovoice_language';
 const SERVER_URL_KEY      = 'motovoice_server_url';
 const SERVER_PASSWORD_KEY = 'motovoice_server_password';
+const SETUP_SKIPPED_KEY   = 'motovoice_server_setup_skipped';
 const DEVICE_ID_KEY       = 'motovoice_device_id';
 const LAST_CHANNEL_KEY    = 'motovoice_last_channel';
 const LOG_LEVEL_KEY       = 'motovoice_log_level';
@@ -22,6 +23,7 @@ function generateDeviceId(): string {
 
 export interface LastChannel {
   roomId:      string;
+  server?:     string; // the room's server, may differ from the configured one
   isHost:      boolean;
   joinedAt:    string; // ISO date string
   deleteSecret?: string;
@@ -74,6 +76,14 @@ export const storage = {
 
   getServerUrl: async (): Promise<string | null> => {
     return SecureStore.getItemAsync(SERVER_URL_KEY);
+  },
+
+  getServerSetupSkipped: async (): Promise<boolean> => {
+    return (await SecureStore.getItemAsync(SETUP_SKIPPED_KEY)) === '1';
+  },
+
+  setServerSetupSkipped: async (): Promise<void> => {
+    await SecureStore.setItemAsync(SETUP_SKIPPED_KEY, '1');
   },
 
   getLastChannel: async (): Promise<LastChannel | null> => {
