@@ -11,9 +11,10 @@ import { api, checkCompatibility } from '@/services/api';
 interface ServerSetupModalProps {
   visible:  boolean;
   onSaved:  () => void;
+  onSkip:   () => void;
 }
 
-export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
+export function ServerSetupModal({ visible, onSaved, onSkip }: ServerSetupModalProps) {
   const { t } = useTranslation();
   const [host,          setHost]          = useState('');
   const [password,      setPassword]      = useState('');
@@ -36,21 +37,27 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
         setError(t('setup.errorServerOutdated', { min: compat.minVersion, server: compat.serverVersion }));
         return;
       }
-      if (health.authRequired && !password) {
+      // Saving this server requires its password; join-only users can skip the setup instead.
+      if (health.authRequired && !needsPassword) {
         setNeedsPassword(true);
-        setError(t('setup.passwordRequired'));
         return;
       }
+      const savedPassword = health.authRequired ? password : null;
       await storage.setServerUrl(fullUrl);
-      await storage.setServerPassword(health.authRequired ? password : null);
+      await storage.setServerPassword(savedPassword);
       api.setBaseUrl(fullUrl);
-      api.setAuthPassword(health.authRequired ? password : null);
+      api.setAuthPassword(savedPassword);
       onSaved();
     } catch {
       setError(t('setup.errorUnreachable'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSkip = async () => {
+    await storage.setServerSetupSkipped();
+    onSkip();
   };
 
   return (
@@ -77,7 +84,7 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
               <TextInput
                 style={s.input}
                 value={host}
-                onChangeText={setHost}
+                onChangeText={text => { setHost(text); setNeedsPassword(false); setPassword(''); setError(null); }}
                 placeholder={t('setup.placeholder')}
                 placeholderTextColor={Colors.textMuted}
                 autoCapitalize="none"
@@ -96,16 +103,18 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
                 <TextInput
                   style={s.input}
                   value={password}
-                  onChangeText={text => { setPassword(text); setError(null); }}
+                  onChangeText={setPassword}
                   placeholder={t('setup.passwordPlaceholder')}
                   placeholderTextColor={Colors.textMuted}
                   autoCapitalize="none"
                   autoCorrect={false}
                   secureTextEntry
+                  autoFocus
                   onSubmitEditing={handleSave}
                   returnKeyType="done"
                 />
               </View>
+              <Text style={s.hintText}>{t('setup.passwordSetupHint')}</Text>
             </View>
           )}
 
@@ -120,6 +129,10 @@ export function ServerSetupModal({ visible, onSaved }: ServerSetupModalProps) {
               ? <ActivityIndicator color={Colors.bg} />
               : <Text style={[s.btnText, !canSave && s.btnTextDisabled]}>{t('setup.save')}</Text>
             }
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleSkip} disabled={loading}>
+            <Text style={s.skipText}>{t('setup.skip')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -218,6 +231,15 @@ const s = StyleSheet.create({
   },
   btnTextDisabled: {
     color: Colors.textMuted,
+  },
+  hintText: {
+    fontSize: FontSize.xs,
+    color:    Colors.textSecondary,
+  },
+  skipText: {
+    fontSize:  FontSize.sm,
+    color:     Colors.textSecondary,
+    textAlign: 'center',
   },
   errorText: {
     fontSize:  FontSize.xs,

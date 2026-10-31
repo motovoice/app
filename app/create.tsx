@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View, Text, StyleSheet, ActivityIndicator,
-  Share, TouchableOpacity,
+  Share, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
 import { Button } from '@/components/Button';
-import { api, ApiError, type CreateRoomResponse } from '@/services/api';
+import { api, ApiError, buildInviteUri, type CreateRoomResponse } from '@/services/api';
 import { storage } from '@/services/storage';
 
 export default function CreateScreen() {
@@ -17,21 +17,42 @@ export default function CreateScreen() {
   const [room, setRoom]       = useState<CreateRoomResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [passwordHint, setPasswordHint]   = useState('');
+  const [password, setPassword]           = useState('');
+
+  const create = async () => {
+    setLoading(true);
+    const name = await storage.getDisplayName();
+    try {
+      const data = await api.createRoom(name ?? 'Host');
+      setRoom(data);
+    } catch (e: any) {
+      if (e instanceof ApiError && e.status === 401) {
+        // Only creating a channel needs the server password: ask for it here.
+        const saved = await storage.getServerPassword();
+        setPasswordHint(saved ? t('setup.wrongPassword') : t('setup.passwordRequired'));
+        setNeedsPassword(true);
+      } else {
+        setError(e?.message ?? t('create.channelCreateError'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const create = async () => {
-      const name = await storage.getDisplayName();
-      try {
-        const data = await api.createRoom(name ?? 'Host');
-        setRoom(data);
-      } catch (e: any) {
-        setError(e instanceof ApiError && e.status === 401 ? t('setup.wrongPassword') : e?.message ?? t('create.channelCreateError'));
-      } finally {
-        setLoading(false);
-      }
-    };
     create();
   }, []);
+
+  const submitPassword = async () => {
+    if (!password) return;
+    await storage.setServerPassword(password);
+    api.setAuthPassword(password);
+    setPassword('');
+    setNeedsPassword(false);
+    await create();
+  };
 
   const joinAsHost = () => {
     if (!room) return;
@@ -41,7 +62,6 @@ export default function CreateScreen() {
         roomId:       room.roomId,
         livekitToken: room.livekitToken,
         livekitUrl:   room.livekitUrl,
-        qrPayload:    room.qrPayload,
         isHost:       '1',
         hostIdentity: room.hostIdentity ?? '',
         deleteSecret: room.deleteSecret,
@@ -102,7 +122,7 @@ export default function CreateScreen() {
             {/* QR code */}
             <View style={styles.qrWrapper}>
               <QRCode
-                value={room.qrPayload}
+                value={buildInviteUri(room.roomId)}
                 size={220}
                 backgroundColor={Colors.bgCard}
                 color={Colors.textPrimary}
@@ -130,6 +150,43 @@ export default function CreateScreen() {
           </View>
         )}
       </View>
+
+      <Modal visible={needsPassword} animationType="fade" transparent statusBarTranslucent>
+        <KeyboardAvoidingView
+          style={styles.pwOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={styles.pwCard}>
+            <Text style={styles.pwTitle}>{t('setup.passwordLabel')}</Text>
+            <Text style={styles.pwSubtitle}>{passwordHint}</Text>
+            <TextInput
+              style={styles.pwInput}
+              value={password}
+              onChangeText={setPassword}
+              placeholder={t('setup.passwordPlaceholder')}
+              placeholderTextColor={Colors.textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry
+              autoFocus
+              onSubmitEditing={submitPassword}
+              returnKeyType="done"
+            />
+            <View style={styles.pwActions}>
+              <TouchableOpacity style={styles.pwCancelBtn} onPress={() => { setNeedsPassword(false); router.back(); }}>
+                <Text style={styles.pwCancelLabel}>{t('generic.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.pwSubmitBtn, !password && styles.pwSubmitBtnDisabled]}
+                onPress={submitPassword}
+                disabled={!password}
+              >
+                <Text style={styles.pwSubmitLabel}>{t('create.createChannel')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -198,4 +255,81 @@ const styles = StyleSheet.create({
   infoValue: { fontSize: FontSize.sm, color: Colors.textPrimary, fontWeight: FontWeight.bold },
 
   actions: { width: '100%', gap: Spacing.md },
+
+  pwOverlay: {
+    flex:            1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    alignItems:      'center',
+    justifyContent:  'center',
+    padding:         Spacing.lg,
+  },
+  pwCard: {
+    backgroundColor: Colors.bgCard,
+    borderRadius:    Radius.xl,
+    padding:         Spacing.xl,
+    width:           '100%',
+    maxWidth:        360,
+    alignItems:      'center',
+    gap:             Spacing.md,
+    borderWidth:     1,
+    borderColor:     Colors.border,
+  },
+  pwTitle: {
+    fontSize:   FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color:      Colors.textPrimary,
+    textAlign:  'center',
+  },
+  pwSubtitle: {
+    fontSize:  FontSize.sm,
+    color:     Colors.textSecondary,
+    textAlign: 'center',
+  },
+  pwInput: {
+    width:             '100%',
+    backgroundColor:   Colors.bgElevated,
+    borderRadius:      Radius.md,
+    borderWidth:       1,
+    borderColor:       Colors.border,
+    paddingVertical:   12,
+    paddingHorizontal: Spacing.md,
+    fontSize:          FontSize.sm,
+    color:             Colors.textPrimary,
+  },
+  pwActions: {
+    flexDirection: 'row',
+    gap:           Spacing.sm,
+    width:         '100%',
+  },
+  pwCancelBtn: {
+    flex:            1,
+    backgroundColor: Colors.bgElevated,
+    borderRadius:    Radius.lg,
+    paddingVertical: 14,
+    alignItems:      'center',
+    borderWidth:     1,
+    borderColor:     Colors.border,
+  },
+  pwCancelLabel: {
+    fontSize:   FontSize.md,
+    fontWeight: FontWeight.bold,
+    color:      Colors.textPrimary,
+  },
+  pwSubmitBtn: {
+    flex:            1,
+    backgroundColor: Colors.primary,
+    borderRadius:    Radius.lg,
+    paddingVertical: 14,
+    alignItems:      'center',
+  },
+  pwSubmitBtnDisabled: {
+    backgroundColor: Colors.bgElevated,
+    borderWidth:     1,
+    borderColor:     Colors.border,
+  },
+  pwSubmitLabel: {
+    fontSize:   FontSize.md,
+    fontWeight: FontWeight.bold,
+    color:      Colors.bg,
+  },
 });
