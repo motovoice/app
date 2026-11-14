@@ -42,6 +42,7 @@ src/
   hooks/useLiveKitRoom.ts      Room lifecycle, audio session config, participants, stats, PTT
   hooks/useForegroundService.ts Android foreground service + notification (keeps the mic alive in background)
   hooks/useReconnectSound.ts   loops a sound while LiveKit is reconnecting
+  hooks/useParticipantSounds.ts join/leave sounds for other participants (triggered by useLiveKitRoom callbacks)
   components/           Button, PTTButton, ParticipantCard, ConnectionBadge, Settings/ServerSetup/DebugLog/Licenses modals
   utils/theme.ts        Colors / Spacing / Radius / FontSize / FontWeight tokens (dark theme only)
   locales/{en,de}.json  i18next strings; i18n.ts picks the system language, then applies the saved override

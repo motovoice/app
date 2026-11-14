@@ -12,6 +12,7 @@ import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
 import { useLiveKitRoom } from '@/hooks/useLiveKitRoom';
 import { useForegroundService } from '@/hooks/useForegroundService';
 import { useReconnectSound } from '@/hooks/useReconnectSound';
+import { useParticipantSounds } from '@/hooks/useParticipantSounds';
 import { PTTButton } from '@/components/PTTButton';
 import { ParticipantCard } from '@/components/ParticipantCard';
 import { ConnectionBadge } from '@/components/ConnectionBadge';
@@ -64,6 +65,8 @@ export default function ChannelScreen() {
 
   const isHost_     = isHost === '1';
 
+  const { playJoinSound, playLeaveSound } = useParticipantSounds();
+
   const {
     connectionState,
     participants,
@@ -83,6 +86,8 @@ export default function ChannelScreen() {
     noiseSuppression,
     autoGainControl,
     dataSaverMode,
+    onRemoteJoined: playJoinSound,
+    onRemoteLeft:   playLeaveSound,
   });
 
   const { permissionDenied } = useForegroundService(roomId ?? '', connectionState);
