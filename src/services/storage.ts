@@ -34,6 +34,7 @@ export interface AudioSettings {
   noiseSuppression: boolean;
   autoGainControl:  boolean;
   dataSaverMode:    boolean;
+  participantSounds: boolean;
 }
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -41,6 +42,7 @@ export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   noiseSuppression: true,
   autoGainControl:  true,
   dataSaverMode:    false,
+  participantSounds: true,
 };
 
 export const storage = {

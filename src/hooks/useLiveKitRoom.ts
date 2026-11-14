@@ -20,6 +20,9 @@ setLogExtension((level, msg, context) => {
   debugLog.log(LogLevel[level], msg, context);
 });
 
+// After our own (re)connect, LiveKit replays ParticipantConnected for everyone already in the room.
+const JOIN_SOUND_SUPPRESS_MS = 1000;
+
 // Riders often lose connectivity briefly while underway (tunnels, dead zones) and
 // can't interact with the phone — keep retrying for up to 10 minutes so the app
 // reconnects on its own once signal returns. The first attempts mirror LiveKit's
@@ -70,6 +73,8 @@ interface UseLiveKitRoomOptions {
   noiseSuppression?: boolean;
   autoGainControl?: boolean;
   dataSaverMode?: boolean;
+  onRemoteJoined?: () => void;
+  onRemoteLeft?: () => void;
 }
 
 export function useLiveKitRoom({
@@ -78,12 +83,16 @@ export function useLiveKitRoom({
   noiseSuppression = true,
   autoGainControl = true,
   dataSaverMode = false,
+  onRemoteJoined,
+  onRemoteLeft,
 }: UseLiveKitRoomOptions) {
   const roomRef = useRef<Room | null>(null);
   const hostNameRef = useRef<string>(hostName);
   const isLocalHostRef = useRef<boolean>(isLocalHost);
   const audioRef = useRef({ echoCancellation, noiseSuppression, autoGainControl, dataSaverMode });
   audioRef.current = { echoCancellation, noiseSuppression, autoGainControl, dataSaverMode };
+  const remoteCallbacksRef = useRef({ onRemoteJoined, onRemoteLeft });
+  remoteCallbacksRef.current = { onRemoteJoined, onRemoteLeft };
   hostNameRef.current = hostName;
   isLocalHostRef.current = isLocalHost;
 
@@ -215,8 +224,17 @@ export function useLiveKitRoom({
 
     roomRef.current = room;
 
-    room.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => setConnectionState(state));
-    room.on(RoomEvent.ParticipantConnected, () => refreshParticipants(room));
+    let suppressJoinedUntil = 0;
+    room.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
+      setConnectionState(state);
+      if (state === ConnectionState.Connected) suppressJoinedUntil = Date.now() + JOIN_SOUND_SUPPRESS_MS;
+    });
+    room.on(RoomEvent.ParticipantConnected, () => {
+      refreshParticipants(room);
+      if (room.state === ConnectionState.Connected && Date.now() >= suppressJoinedUntil) {
+        remoteCallbacksRef.current.onRemoteJoined?.();
+      }
+    });
     room.on(RoomEvent.ParticipantDisconnected, (p: RemoteParticipant) => {
       const ghostIsHost = !isLocalHostRef.current && !!hostNameRef.current &&
         (p.identity === hostNameRef.current || p.name === hostNameRef.current);
@@ -231,6 +249,11 @@ export function useLiveKitRoom({
       }, 30_000);
       ghostsRef.current.set(p.identity, { participant: ghost, timer });
       refreshParticipants(room);
+      // Deferred: when we lose the connection ourselves, LiveKit removes all participants
+      // first and only then changes the room state, so check the state afterwards.
+      setTimeout(() => {
+        if (room.state === ConnectionState.Connected) remoteCallbacksRef.current.onRemoteLeft?.();
+      }, 0);
     });
     room.on(RoomEvent.ActiveSpeakersChanged, () => refreshParticipants(room));
     room.on(RoomEvent.TrackMuted, () => refreshParticipants(room));

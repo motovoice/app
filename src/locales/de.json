@@ -119,6 +119,8 @@
     "gainControl": "Lautstärke-Automatik",
     "dataSaverMode": "Datensparmodus",
     "dataSaverModeHint": "Reduziert die Bitrate wodurch die Sprachqualität sinkt",
+    "participantSounds": "Beitritts- und Austrittstöne",
+    "participantSoundsHint": "Spielt einen Ton, wenn jemand dem Channel beitritt oder ihn verlässt",
     "sectionServer": "Server",
     "serverUrl": "Server-URL",
     "serverUrlPlaceholder": "deine-domain.de",

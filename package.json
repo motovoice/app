@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --clear",
+    "start:android": "expo start --clear --android",
     "clean": "expo prebuild --clean",
     "adb:install": "adb install build-*.apk",
     "build:ios": "eas build --platform ios --profile development --local",
@@ -17,7 +18,7 @@
   },
   "dependencies": {
     "@livekit/react-native": "^2.10.1",
-    "@livekit/react-native-webrtc": "^144.0.0",
+    "@livekit/react-native-webrtc": "144.1.2",
     "expo": "~55.0.0",
     "expo-adi-registration": "^1.0.0",
     "expo-asset": "~55.0.16",

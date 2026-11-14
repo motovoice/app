@@ -119,6 +119,8 @@
     "gainControl": "Auto Gain Control",
     "dataSaverMode": "Data Saver Mode",
     "dataSaverModeHint": "Reduces the bitrate with worse audio quality as tradeoff",
+    "participantSounds": "Join and Leave Sounds",
+    "participantSoundsHint": "Plays a sound when someone joins or leaves the channel",
     "sectionServer": "Server",
     "serverUrl": "Server URL",
     "serverUrlPlaceholder": "your-domain.com",

@@ -12,6 +12,7 @@ import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/utils/theme';
 import { useLiveKitRoom } from '@/hooks/useLiveKitRoom';
 import { useForegroundService } from '@/hooks/useForegroundService';
 import { useReconnectSound } from '@/hooks/useReconnectSound';
+import { useParticipantSounds } from '@/hooks/useParticipantSounds';
 import { PTTButton } from '@/components/PTTButton';
 import { ParticipantCard } from '@/components/ParticipantCard';
 import { ConnectionBadge } from '@/components/ConnectionBadge';
@@ -42,6 +43,7 @@ export default function ChannelScreen() {
   const [noiseSuppression, setNoiseSuppression]     = useState(true);
   const [autoGainControl,  setAutoGainControl]      = useState(true);
   const [dataSaverMode,    setDataSaverMode]        = useState(false);
+  const [participantSounds, setParticipantSounds]   = useState(true);
 
   useEffect(() => {
     storage.getDisplayName().then(n => { if (n) setLocalDisplayName(n); });
@@ -50,6 +52,7 @@ export default function ChannelScreen() {
       setNoiseSuppression(s.noiseSuppression);
       setAutoGainControl(s.autoGainControl);
       setDataSaverMode(s.dataSaverMode);
+      setParticipantSounds(s.participantSounds);
     });
     if (roomId) {
       storage.setLastChannel({
@@ -63,6 +66,8 @@ export default function ChannelScreen() {
   }, []);
 
   const isHost_     = isHost === '1';
+
+  const { playJoinSound, playLeaveSound } = useParticipantSounds();
 
   const {
     connectionState,
@@ -83,6 +88,8 @@ export default function ChannelScreen() {
     noiseSuppression,
     autoGainControl,
     dataSaverMode,
+    onRemoteJoined: participantSounds ? playJoinSound : undefined,
+    onRemoteLeft:   participantSounds ? playLeaveSound : undefined,
   });
 
   const { permissionDenied } = useForegroundService(roomId ?? '', connectionState);
