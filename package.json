@@ -17,8 +17,8 @@
     "eas-build-post-install": "node scripts/generate-licenses.js"
   },
   "dependencies": {
-    "@livekit/react-native": "^2.10.1",
-    "@livekit/react-native-webrtc": "144.1.2",
+    "@livekit/react-native": "^3.1.0",
+    "@livekit/react-native-webrtc": "~150.1.1",
     "expo": "~55.0.0",
     "expo-adi-registration": "^1.0.0",
     "expo-asset": "~55.0.16",
@@ -37,11 +37,11 @@
     "expo-status-bar": "~55.0.0",
     "expo-system-ui": "~55.0.0",
     "i18next": "^26.0.5",
-    "livekit-client": "^2.18.0",
+    "livekit-client": "^2.24.1",
     "react": "19.2.0",
     "react-i18next": "^17.0.3",
-    "react-native": "0.83.6",
-    "react-native-notify-kit": "~10.2.1",
+    "react-native": "0.83.10",
+    "react-native-notify-kit": "~10.10.1",
     "react-native-qrcode-svg": "^6.3.2",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
@@ -53,5 +53,8 @@
     "babel-plugin-module-resolver": "~5.0.3",
     "babel-preset-expo": "^55.0.0",
     "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "react-dom": "$react"
   }
 }
