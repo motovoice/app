@@ -43,6 +43,7 @@ export default function ChannelScreen() {
   const [noiseSuppression, setNoiseSuppression]     = useState(true);
   const [autoGainControl,  setAutoGainControl]      = useState(true);
   const [dataSaverMode,    setDataSaverMode]        = useState(false);
+  const [participantSounds, setParticipantSounds]   = useState(true);
 
   useEffect(() => {
     storage.getDisplayName().then(n => { if (n) setLocalDisplayName(n); });
@@ -51,6 +52,7 @@ export default function ChannelScreen() {
       setNoiseSuppression(s.noiseSuppression);
       setAutoGainControl(s.autoGainControl);
       setDataSaverMode(s.dataSaverMode);
+      setParticipantSounds(s.participantSounds);
     });
     if (roomId) {
       storage.setLastChannel({
@@ -86,8 +88,8 @@ export default function ChannelScreen() {
     noiseSuppression,
     autoGainControl,
     dataSaverMode,
-    onRemoteJoined: playJoinSound,
-    onRemoteLeft:   playLeaveSound,
+    onRemoteJoined: participantSounds ? playJoinSound : undefined,
+    onRemoteLeft:   participantSounds ? playLeaveSound : undefined,
   });
 
   const { permissionDenied } = useForegroundService(roomId ?? '', connectionState);

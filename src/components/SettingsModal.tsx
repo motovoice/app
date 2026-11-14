@@ -193,6 +193,13 @@ export function SettingsModal({ visible, onClose, onOpenLicenses }: SettingsModa
                 value={audio.dataSaverMode}
                 onToggle={() => toggleAudio('dataSaverMode')}
               />
+              <View style={s.divider} />
+              <SettingRow
+                label={t('settings.participantSounds')}
+                sublabel={t('settings.participantSoundsHint')}
+                value={audio.participantSounds}
+                onToggle={() => toggleAudio('participantSounds')}
+              />
             </View>
 
             {/* Server */}
